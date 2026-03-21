@@ -276,15 +276,19 @@ export function GameApp() {
                 const cageId = cageIdMap.get(keyForCell(row, col));
                 const currentCageState = cageId ? state.validation.cageState[cageId] : "idle";
                 const tooltip = getCellTooltip(state, row, col);
+                const hasBoxTop = row % 3 === 0;
+                const hasBoxLeft = col % 3 === 0;
+                const hasBoxBottom = row === 8;
+                const hasBoxRight = col === 8;
                 const borderClasses = [
-                  row === 0 || cageIdMap.get(keyForCell(row - 1, col)) !== cageId ? "cage-top" : "",
-                  row === 8 || cageIdMap.get(keyForCell(row + 1, col)) !== cageId ? "cage-bottom" : "",
-                  col === 0 || cageIdMap.get(keyForCell(row, col - 1)) !== cageId ? "cage-left" : "",
-                  col === 8 || cageIdMap.get(keyForCell(row, col + 1)) !== cageId ? "cage-right" : "",
-                  row % 3 === 0 ? "box-top" : "",
-                  col % 3 === 0 ? "box-left" : "",
-                  row === 8 ? "box-bottom" : "",
-                  col === 8 ? "box-right" : ""
+                  (row === 0 || cageIdMap.get(keyForCell(row - 1, col)) !== cageId) && !hasBoxTop ? "cage-top" : "",
+                  row === 8 && cageIdMap.get(keyForCell(row + 1, col)) !== cageId ? "cage-bottom" : "",
+                  (col === 0 || cageIdMap.get(keyForCell(row, col - 1)) !== cageId) && !hasBoxLeft ? "cage-left" : "",
+                  col === 8 && cageIdMap.get(keyForCell(row, col + 1)) !== cageId ? "cage-right" : "",
+                  hasBoxTop ? "box-top" : "",
+                  hasBoxLeft ? "box-left" : "",
+                  hasBoxBottom ? "box-bottom" : "",
+                  hasBoxRight ? "box-right" : ""
                 ]
                   .filter(Boolean)
                   .join(" ");
@@ -385,5 +389,6 @@ export function GameApp() {
     </main>
   );
 }
+
 
 
