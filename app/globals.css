@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --bg: #f5efe4;
   --paper: rgba(255, 252, 245, 0.88);
   --ink: #1c1c1c;
@@ -150,7 +150,8 @@ h1 {
   color: white;
 }
 
-.toolbar button:disabled {
+.toolbar button:disabled,
+.keypad button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
@@ -292,6 +293,31 @@ h1 {
   gap: 10px;
 }
 
+.keypad button {
+  min-height: 68px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+}
+
+.keypad-digit {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.keypad-status {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.keypad button.completed {
+  background: rgba(31, 108, 92, 0.12);
+  border-color: rgba(31, 108, 92, 0.45);
+}
+
 .keypad .wide {
   grid-column: span 3;
 }
@@ -417,6 +443,8 @@ h1 {
 .legend-swatch.box-border {
   border: 3px solid var(--box-line);
 }
+
+
 
 
 

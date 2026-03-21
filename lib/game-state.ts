@@ -1,4 +1,4 @@
-﻿import { createStartingValues, getPuzzleById, isGivenCell } from "@/lib/puzzles";
+import { createStartingValues, getPuzzleById, isGivenCell } from "@/lib/puzzles";
 import {
   CellValue,
   GameState,
@@ -109,7 +109,28 @@ export function savePersistedState(state: GameState) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(toPersistedState(state)));
 }
 
+export function getCompletedDigits(state: GameState) {
+  const puzzle = getPuzzleById(state.puzzleId);
+  const completedDigits = new Set<number>();
+
+  for (let digit = 1; digit <= 9; digit += 1) {
+    const solvedCells = puzzle.solution.flatMap((row, rowIndex) =>
+      row.flatMap((value, colIndex) => (value === digit ? [{ row: rowIndex, col: colIndex }] : []))
+    );
+
+    if (solvedCells.every((cell) => state.values[cell.row][cell.col] === digit)) {
+      completedDigits.add(digit);
+    }
+  }
+
+  return completedDigits;
+}
+
 export function selectDigit(state: GameState, digit: number | null): GameState {
+  if (digit !== null && getCompletedDigits(state).has(digit)) {
+    return state;
+  }
+
   return {
     ...state,
     selectedDigit: state.selectedDigit === digit ? null : digit
@@ -160,8 +181,7 @@ export function tick(state: GameState): GameState {
 
 function applySnapshot(state: GameState, snapshot: Snapshot, history: Snapshot[], future: Snapshot[]): GameState {
   const puzzle = getPuzzleById(state.puzzleId);
-
-  return {
+  const nextState = {
     ...state,
     values: cloneValues(snapshot.values),
     notes: cloneNotes(snapshot.notes),
@@ -169,6 +189,15 @@ function applySnapshot(state: GameState, snapshot: Snapshot, history: Snapshot[]
     future,
     validation: validateBoard(snapshot.values, puzzle)
   };
+
+  if (nextState.selectedDigit !== null && getCompletedDigits(nextState).has(nextState.selectedDigit)) {
+    return {
+      ...nextState,
+      selectedDigit: null
+    };
+  }
+
+  return nextState;
 }
 
 function commitMutation(
@@ -184,8 +213,7 @@ function commitMutation(
   }
 
   const puzzle = getPuzzleById(state.puzzleId);
-
-  return {
+  const nextState = {
     ...state,
     values: draftValues,
     notes: draftNotes,
@@ -193,6 +221,15 @@ function commitMutation(
     future: [],
     validation: validateBoard(draftValues, puzzle)
   };
+
+  if (nextState.selectedDigit !== null && getCompletedDigits(nextState).has(nextState.selectedDigit)) {
+    return {
+      ...nextState,
+      selectedDigit: null
+    };
+  }
+
+  return nextState;
 }
 
 function applyDigitToCell(state: GameState, row: number, col: number, digit: number): GameState {

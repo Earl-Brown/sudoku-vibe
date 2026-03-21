@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import { getGivenPositions, getPuzzleById, isGivenCell, puzzles } from "@/lib/puzzles";
@@ -7,6 +7,7 @@ import {
   createInitialState,
   DEFAULT_PLAY_DIFFICULTY,
   enterDigit,
+  getCompletedDigits,
   loadPersistedState,
   redo,
   resetPuzzle,
@@ -192,6 +193,7 @@ export function GameApp() {
   const puzzle = getPuzzleById(state.puzzleId);
   const cageIdMap = useMemo(() => getCageIdMap(state.puzzleId), [state.puzzleId]);
   const cageLabelMap = useMemo(() => getCageLabelMap(state.puzzleId), [state.puzzleId]);
+  const completedDigits = useMemo(() => getCompletedDigits(state), [state]);
   const givenCount = getGivenPositions(state.playDifficulty).length;
 
   if (!ready) {
@@ -202,9 +204,7 @@ export function GameApp() {
     <main className="shell">
       <section className="hero">
         <div>
-
           <h1>Killer Sudoku</h1>
-
         </div>
         <div className="stats">
           <div className="stat-card">
@@ -325,15 +325,23 @@ export function GameApp() {
           <div className="panel">
             <h2>Controls</h2>
             <div className="keypad">
-              {range(9).map((index) => (
-                <button
-                  key={index}
-                  className={state.selectedDigit === index + 1 ? "active" : ""}
-                  onClick={() => setState((current) => enterDigit(current, index + 1))}
-                >
-                  {index + 1}
-                </button>
-              ))}
+              {range(9).map((index) => {
+                const digit = index + 1;
+                const completed = completedDigits.has(digit);
+
+                return (
+                  <button
+                    key={index}
+                    className={`${state.selectedDigit === digit ? "active" : ""} ${completed ? "completed" : ""}`.trim()}
+                    onClick={() => setState((current) => enterDigit(current, digit))}
+                    disabled={completed}
+                    aria-label={completed ? `${digit} complete` : `${digit}`}
+                  >
+                    <span className="keypad-digit">{digit}</span>
+                    {completed ? <span className="keypad-status">Done</span> : null}
+                  </button>
+                );
+              })}
               <button className="wide" onClick={() => setState((current) => clearCell(current))}>
                 Clear cell
               </button>
@@ -367,6 +375,7 @@ export function GameApp() {
               <li>Cages must add up to their corner total and cannot repeat a digit.</li>
               <li>Low, Medium, and High include starter digits. Killer uses none.</li>
               <li>Select a number first, then click cells to place it. Choosing a new number never overwrites the current cell.</li>
+              <li>A number locks itself once all nine correct placements are on the board.</li>
             </ul>
           </div>
 
@@ -389,6 +398,3 @@ export function GameApp() {
     </main>
   );
 }
-
-
-

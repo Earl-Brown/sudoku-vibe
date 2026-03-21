@@ -1,8 +1,9 @@
-﻿import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   clearCell,
   createInitialState,
   enterDigit,
+  getCompletedDigits,
   redo,
   selectCell,
   switchPlayDifficulty,
@@ -62,5 +63,35 @@ describe("game-state", () => {
 
     state = switchPlayDifficulty(state, "killer");
     expect(state.values[0][0]).toBeNull();
+  });
+
+  it("marks a digit complete only when all correct placements are filled", () => {
+    let state = createInitialState("sunrise", "killer");
+    const correctTwos = [
+      { row: 0, col: 1 },
+      { row: 1, col: 7 },
+      { row: 2, col: 4 },
+      { row: 3, col: 0 },
+      { row: 4, col: 6 },
+      { row: 5, col: 3 },
+      { row: 6, col: 8 },
+      { row: 7, col: 5 },
+      { row: 8, col: 2 }
+    ];
+
+    state = enterDigit(state, 2);
+
+    correctTwos.slice(0, -1).forEach((cell) => {
+      state = selectCell(state, cell);
+    });
+
+    expect(getCompletedDigits(state).has(2)).toBe(false);
+    expect(state.selectedDigit).toBe(2);
+
+    state = selectCell(state, correctTwos[correctTwos.length - 1]);
+
+    expect(getCompletedDigits(state).has(2)).toBe(true);
+    expect(state.selectedDigit).toBeNull();
+    expect(enterDigit(state, 2).selectedDigit).toBeNull();
   });
 });
