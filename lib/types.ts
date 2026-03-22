@@ -14,7 +14,10 @@ export type Cage = {
 export type PuzzleDefinition = {
   id: string;
   name: string;
-  complexity: "Easy" | "Standard" | "Tricky";
+  complexity: string;
+  source: string;
+  givens: Position[];
+  extraGivens: Position[];
   cages: Cage[];
   solution: number[][];
 };

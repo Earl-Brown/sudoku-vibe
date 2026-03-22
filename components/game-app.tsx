@@ -228,7 +228,7 @@ export function GameApp() {
   const cageLabelMap = useMemo(() => getCageLabelMap(state.puzzleId), [state.puzzleId]);
   const completedDigits = useMemo(() => getCompletedDigits(state), [state]);
   const selectedDigitCells = useMemo(() => getSelectedDigitCells(state), [state]);
-  const givenCount = getGivenPositions(state.playDifficulty).length;
+  const givenCount = getGivenPositions(state.puzzleId, state.playDifficulty).length;
 
   if (!ready) {
     return <main className="shell loading">Loading puzzle table...</main>;
@@ -408,4 +408,5 @@ export function GameApp() {
     </main>
   );
 }
+
 

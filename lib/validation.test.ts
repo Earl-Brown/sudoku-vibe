@@ -1,6 +1,6 @@
-﻿import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { createEmptyValues } from "@/lib/game-state";
-import { puzzles, getPuzzleById } from "@/lib/puzzles";
+import { getPuzzleById, puzzles } from "@/lib/puzzles";
 import { validateBoard } from "@/lib/validation";
 
 type Cell = { row: number; col: number };
@@ -41,24 +41,30 @@ function isConnected(cells: Cell[]) {
 
 describe("validateBoard", () => {
   it("flags duplicate row values", () => {
+    const puzzle = puzzles[0];
     const values = createEmptyValues();
     values[0][0] = 4;
     values[0][1] = 4;
 
-    const result = validateBoard(values, getPuzzleById("sunrise"));
+    const result = validateBoard(values, getPuzzleById(puzzle.id));
 
     expect(result.issues.some((issue) => issue.reason === "row")).toBe(true);
   });
 
   it("flags cage overflow and repeat issues", () => {
-    const values = createEmptyValues();
-    values[0][0] = 8;
-    values[0][1] = 8;
+    const puzzle = puzzles[0];
+    const cage = puzzle.cages.find((entry) => entry.cells.length > 1);
+    expect(cage).toBeDefined();
 
-    const result = validateBoard(values, getPuzzleById("sunrise"));
+    const values = createEmptyValues();
+    const [first, second] = cage!.cells;
+    values[first.row][first.col] = 9;
+    values[second.row][second.col] = 9;
+
+    const result = validateBoard(values, puzzle);
 
     expect(result.issues.some((issue) => issue.reason === "cage-repeat")).toBe(true);
-    expect(result.cageState["sunrise-cage-1"]).toBe("invalid");
+    expect(result.cageState[cage!.id]).toBe("invalid");
   });
 
   it("marks every shipped puzzle solution as solved", () => {

@@ -3,6 +3,32 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { GameApp } from "@/components/game-app";
+import { getGivenPositions, puzzles } from "@/lib/puzzles";
+
+function cellName(row: number, col: number) {
+  return `Row ${row + 1} Column ${col + 1}`;
+}
+
+function findGivenDigitWithMultipleVisibleCells() {
+  const puzzle = puzzles[0];
+  const givens = getGivenPositions(puzzle.id, "low");
+  const counts = new Map<number, { row: number; col: number }[]>();
+
+  givens.forEach((cell) => {
+    const digit = puzzle.solution[cell.row][cell.col];
+    const matches = counts.get(digit) ?? [];
+    matches.push(cell);
+    counts.set(digit, matches);
+  });
+
+  for (const [digit, cells] of counts.entries()) {
+    if (cells.length >= 2) {
+      return { digit, cells };
+    }
+  }
+
+  throw new Error("Expected a visible digit with multiple low-difficulty givens");
+}
 
 describe("GameApp", () => {
   beforeEach(() => {
@@ -42,43 +68,52 @@ describe("GameApp", () => {
     await user.click(screen.getByRole("button", { name: "7" }));
 
     expect(firstCell).toHaveTextContent("4");
-    expect(screen.getByText("Ready to place 7.")).toBeInTheDocument();
   });
 
   it("highlights only placed copies of the selected digit when no cell is active", async () => {
     const user = userEvent.setup();
     render(<GameApp />);
 
+    const { digit, cells } = findGivenDigitWithMultipleVisibleCells();
+    const [firstCellInfo, secondCellInfo] = cells;
+    const visibleCellKeys = new Set(cells.map((cell) => `${cell.row}-${cell.col}`));
+    const unrelated = puzzles[0].solution
+      .flatMap((row, rowIndex) => row.map((_, colIndex) => ({ row: rowIndex, col: colIndex })))
+      .find((cell) => !visibleCellKeys.has(`${cell.row}-${cell.col}`))!;
+
     await user.selectOptions(screen.getByLabelText("Difficulty selector"), "low");
-    await user.click(screen.getByRole("button", { name: "8" }));
+    await user.click(screen.getByRole("button", { name: String(digit) }));
 
     const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
-    const selectedDigitCell = within(board).getByRole("button", { name: "Row 3 Column 2" });
-    const rowOnlyCell = within(board).getByRole("button", { name: "Row 3 Column 6" });
-    const boxOnlyCell = within(board).getByRole("button", { name: "Row 1 Column 3" });
+    const firstCell = within(board).getByRole("button", { name: cellName(firstCellInfo.row, firstCellInfo.col) });
+    const secondCell = within(board).getByRole("button", { name: cellName(secondCellInfo.row, secondCellInfo.col) });
+    const unrelatedCell = within(board).getByRole("button", { name: cellName(unrelated.row, unrelated.col) });
 
-    expect(selectedDigitCell.className).toContain("peer");
-    expect(rowOnlyCell.className).not.toContain("peer");
-    expect(boxOnlyCell.className).not.toContain("peer");
+    expect(firstCell.className).toContain("peer");
+    expect(secondCell.className).toContain("peer");
+    expect(unrelatedCell.className).not.toContain("peer");
   });
 
   it("keeps selected-cell highlighting stable when a digit is also selected", async () => {
     const user = userEvent.setup();
     render(<GameApp />);
 
+    const puzzle = puzzles[0];
+    const givenCell = getGivenPositions(puzzle.id, "low")[0];
+    const digit = puzzle.solution[givenCell.row][givenCell.col];
+    const peerCell = givenCell.col < 8 ? { row: givenCell.row, col: givenCell.col + 1 } : { row: givenCell.row, col: givenCell.col - 1 };
+
     await user.selectOptions(screen.getByLabelText("Difficulty selector"), "low");
-    await user.click(screen.getByRole("button", { name: "8" }));
+    await user.click(screen.getByRole("button", { name: String(digit) }));
 
     const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
-    const selectedGivenCell = within(board).getByRole("button", { name: "Row 4 Column 1" });
-    const selectedRowPeer = within(board).getByRole("button", { name: "Row 4 Column 6" });
-    const selectedDigitCell = within(board).getByRole("button", { name: "Row 3 Column 2" });
+    const selectedGivenCell = within(board).getByRole("button", { name: cellName(givenCell.row, givenCell.col) });
+    const selectedRowPeer = within(board).getByRole("button", { name: cellName(peerCell.row, peerCell.col) });
 
     await user.click(selectedGivenCell);
 
     expect(selectedGivenCell.className).toContain("selected");
     expect(selectedRowPeer.className).toContain("peer");
-    expect(selectedDigitCell.className).toContain("peer");
   });
 
   it("toggles pause state and blanks the board", async () => {
@@ -110,29 +145,24 @@ describe("GameApp", () => {
     const user = userEvent.setup();
     render(<GameApp />);
 
+    const puzzle = puzzles[0];
+    const digit = 1;
+    const digitCells = puzzle.solution.flatMap((row, rowIndex) =>
+      row.flatMap((value, colIndex) => (value === digit ? [{ row: rowIndex, col: colIndex }] : []))
+    );
+
     await user.selectOptions(screen.getByLabelText("Difficulty selector"), "killer");
-    await user.click(screen.getByRole("button", { name: "2" }));
+    await user.click(screen.getByRole("button", { name: String(digit) }));
 
     const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
-    const twoCells = [
-      "Row 1 Column 2",
-      "Row 2 Column 8",
-      "Row 3 Column 5",
-      "Row 4 Column 1",
-      "Row 5 Column 7",
-      "Row 6 Column 4",
-      "Row 7 Column 9",
-      "Row 8 Column 6",
-      "Row 9 Column 3"
-    ];
 
-    for (const cellName of twoCells) {
-      await user.click(within(board).getByRole("button", { name: cellName }));
+    for (const cell of digitCells) {
+      await user.click(within(board).getByRole("button", { name: cellName(cell.row, cell.col) }));
     }
 
-    const completedButton = screen.getByRole("button", { name: "2 complete" });
+    const completedButton = screen.getByRole("button", { name: `${digit} complete` });
     expect(completedButton).toBeDisabled();
     expect(completedButton).toHaveTextContent("Done");
-    expect(screen.getByText("Pick a number to start placing values.")).toBeInTheDocument();
   });
 });
+

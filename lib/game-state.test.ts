@@ -10,10 +10,13 @@ import {
   toggleNoteMode,
   undo
 } from "@/lib/game-state";
+import { getGivenPositions, puzzles } from "@/lib/puzzles";
+
+const firstPuzzle = puzzles[0];
 
 describe("game-state", () => {
   it("supports value entry and undo/redo", () => {
-    let state = createInitialState("sunrise", "killer");
+    let state = createInitialState(firstPuzzle.id, "killer");
     state = enterDigit(state, 5);
     state = selectCell(state, { row: 0, col: 0 });
 
@@ -27,7 +30,7 @@ describe("game-state", () => {
   });
 
   it("supports note mode placement after choosing a number", () => {
-    let state = createInitialState("sunrise", "killer");
+    let state = createInitialState(firstPuzzle.id, "killer");
     state = toggleNoteMode(state);
     state = enterDigit(state, 3);
     state = selectCell(state, { row: 0, col: 0 });
@@ -41,7 +44,7 @@ describe("game-state", () => {
   });
 
   it("changing the selected number does not overwrite the current cell", () => {
-    let state = createInitialState("sunrise", "killer");
+    let state = createInitialState(firstPuzzle.id, "killer");
     state = enterDigit(state, 4);
     state = selectCell(state, { row: 0, col: 0 });
 
@@ -53,45 +56,41 @@ describe("game-state", () => {
   });
 
   it("pre-fills givens for lower difficulties and locks them", () => {
-    let state = createInitialState("sunrise", "low");
+    const firstGiven = getGivenPositions(firstPuzzle.id, "low")[0];
+    const expectedDigit = firstPuzzle.solution[firstGiven.row][firstGiven.col];
 
-    expect(state.values[0][0]).toBe(1);
+    let state = createInitialState(firstPuzzle.id, "low");
 
-    state = enterDigit(state, 9);
-    state = selectCell(state, { row: 0, col: 0 });
-    expect(state.values[0][0]).toBe(1);
+    expect(state.values[firstGiven.row][firstGiven.col]).toBe(expectedDigit);
+
+    state = enterDigit(state, expectedDigit === 9 ? 8 : 9);
+    state = selectCell(state, firstGiven);
+    expect(state.values[firstGiven.row][firstGiven.col]).toBe(expectedDigit);
 
     state = switchPlayDifficulty(state, "killer");
-    expect(state.values[0][0]).toBeNull();
+    expect(state.values[firstGiven.row][firstGiven.col]).toBeNull();
   });
 
   it("marks a digit complete only when all correct placements are filled", () => {
-    let state = createInitialState("sunrise", "killer");
-    const correctTwos = [
-      { row: 0, col: 1 },
-      { row: 1, col: 7 },
-      { row: 2, col: 4 },
-      { row: 3, col: 0 },
-      { row: 4, col: 6 },
-      { row: 5, col: 3 },
-      { row: 6, col: 8 },
-      { row: 7, col: 5 },
-      { row: 8, col: 2 }
-    ];
+    let state = createInitialState(firstPuzzle.id, "killer");
+    const digit = 1;
+    const correctCells = firstPuzzle.solution.flatMap((row, rowIndex) =>
+      row.flatMap((value, colIndex) => (value === digit ? [{ row: rowIndex, col: colIndex }] : []))
+    );
 
-    state = enterDigit(state, 2);
+    state = enterDigit(state, digit);
 
-    correctTwos.slice(0, -1).forEach((cell) => {
+    correctCells.slice(0, -1).forEach((cell) => {
       state = selectCell(state, cell);
     });
 
-    expect(getCompletedDigits(state).has(2)).toBe(false);
-    expect(state.selectedDigit).toBe(2);
+    expect(getCompletedDigits(state).has(digit)).toBe(false);
+    expect(state.selectedDigit).toBe(digit);
 
-    state = selectCell(state, correctTwos[correctTwos.length - 1]);
+    state = selectCell(state, correctCells[correctCells.length - 1]);
 
-    expect(getCompletedDigits(state).has(2)).toBe(true);
+    expect(getCompletedDigits(state).has(digit)).toBe(true);
     expect(state.selectedDigit).toBeNull();
-    expect(enterDigit(state, 2).selectedDigit).toBeNull();
+    expect(enterDigit(state, digit).selectedDigit).toBeNull();
   });
 });

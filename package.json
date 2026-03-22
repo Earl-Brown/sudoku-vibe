@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "generate:puzzles": "node scripts/generate-royle-puzzles.cjs",
+    "build": "npm run generate:puzzles && next build",
     "start": "next start",
-    "test": "vitest run"
+    "test": "npm run generate:puzzles && vitest run"
   },
   "dependencies": {
     "next": "15.2.4",
