@@ -1,6 +1,6 @@
 # Killer Sudoku
 
-A fully offline Killer Sudoku web app built with Next.js and TypeScript.
+A vibe-coded, fully offline Killer Sudoku web app built with Next.js and TypeScript.
 
 ## Features
 
@@ -14,6 +14,23 @@ A fully offline Killer Sudoku web app built with Next.js and TypeScript.
 ## Deployment
 
 This app is configured for static deployment. Running `npm run build` generates a fully exportable site in [out](D:/temp/Codex/Killer Sudoku/out).
+
+### GitHub Pages
+
+A GitHub Pages workflow is included at [deploy-pages.yml](D:/temp/Codex/Killer Sudoku/.github/workflows/deploy-pages.yml).
+
+To enable it:
+- push the repository to GitHub
+- in the repository settings, open `Pages`
+- set `Source` to `GitHub Actions`
+- push to `main` or `master`, or run the workflow manually from the `Actions` tab
+
+Notes:
+- the workflow runs `npm ci`, `npm test`, and `npm run build` before publishing
+- `next.config.ts` automatically uses the repository name as the `basePath` on GitHub Actions for project Pages sites like `username.github.io/repo-name`
+- user or organization sites like `username.github.io` keep the root path automatically
+
+### Other static hosts
 
 Typical deployment flow:
 - run `npm install`
@@ -51,4 +68,3 @@ The repository vendors the Gordon Royle 17-clue source set in [data/gordon-royle
 ## Runtime model
 
 The app is client-side and offline-first. It does not require a backend, account system, or AI integration. Puzzle progress is stored locally in the browser.
-
