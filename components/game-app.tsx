@@ -374,61 +374,35 @@ export function GameApp() {
             </div>
           </div>
 
-          <div className="panel">
-            <h2>Legend</h2>
-            <div className="legend-list">
-              {legendItems.map((item) => (
-                <div key={item.label} className="legend-item">
-                  <span className={item.className} aria-hidden="true" />
-                  <span>{item.label}</span>
+          <details className="panel help-panel">
+            <summary>Instructions</summary>
+            <div className="help-panel-body">
+              <p>{puzzle.name} uses a {puzzle.complexity.toLowerCase()} cage layout.</p>
+              <p>
+                {playDifficultyLabels[state.playDifficulty]} starts with {givenCount} pre-filled number{givenCount === 1 ? "" : "s"}.
+              </p>
+              <ul className="tips">
+                <li>Each row, column, and 3x3 box must contain 1 through 9 exactly once.</li>
+                <li>Cages must add up to their corner total and cannot repeat a digit.</li>
+                <li>Low, Medium, and High include starter digits. Killer uses none.</li>
+                <li>Select a number first, then click cells to place it. Choosing a new number never overwrites the current cell.</li>
+                <li>Selected numbers light up their placed cells, and an active cell still highlights its related row, column, and box.</li>
+                <li>Use Pause to blank the board and freeze play until you resume.</li>
+                <li>A number locks itself once all nine correct placements are on the board.</li>
+              </ul>
+              <div className="legend-block">
+                <h3>Legend</h3>
+                <div className="legend-list">
+                  {legendItems.map((item) => (
+                    <div key={item.label} className="legend-item">
+                      <span className={item.className} aria-hidden="true" />
+                      <span>{item.label}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
-          </div>
-
-          <div className="panel">
-            <h2>Current setup</h2>
-            <p>{puzzle.name} uses a {puzzle.complexity.toLowerCase()} cage layout.</p>
-            <p>
-              {playDifficultyLabels[state.playDifficulty]} starts with {givenCount} pre-filled number{givenCount === 1 ? "" : "s"}.
-            </p>
-          </div>
-
-          <div className="panel">
-            <h2>How to play</h2>
-            <ul className="tips">
-              <li>Each row, column, and 3x3 box must contain 1 through 9 exactly once.</li>
-              <li>Cages must add up to their corner total and cannot repeat a digit.</li>
-              <li>Low, Medium, and High include starter digits. Killer uses none.</li>
-              <li>Select a number first, then click cells to place it. Choosing a new number never overwrites the current cell.</li>
-              <li>Selected numbers light up their placed cells, and an active cell still highlights its related row, column, and box.</li>
-              <li>Use Pause to blank the board and freeze play until you resume.</li>
-              <li>A number locks itself once all nine correct placements are on the board.</li>
-            </ul>
-          </div>
-
-          <div className="panel">
-            <h2>Selection</h2>
-            <p>
-              {state.isPaused
-                ? "Game is paused."
-                : state.selectedCell
-                  ? `Row ${state.selectedCell.row + 1}, Column ${state.selectedCell.col + 1}`
-                  : "Choose a cell to begin."}
-            </p>
-            <p>
-              {state.validation.issues.length === 0
-                ? "No rule conflicts detected."
-                : `${state.validation.issues.length} issue(s) highlighted.`}
-            </p>
-            <p>
-              {state.isPaused
-                ? "Press Play to resume."
-                : state.selectedDigit
-                  ? `Ready to place ${state.selectedDigit}.`
-                  : "Pick a number to start placing values."}
-            </p>
-          </div>
+          </details>
         </aside>
       </section>
     </main>
