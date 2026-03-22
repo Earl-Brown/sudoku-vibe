@@ -55,6 +55,18 @@ describe("game-state", () => {
     expect(state.selectedDigit).toBe(7);
   });
 
+  it("clears the active cell when changing the selected number", () => {
+    let state = createInitialState(firstPuzzle.id, "killer");
+    state = enterDigit(state, 4);
+    state = selectCell(state, { row: 0, col: 0 });
+
+    expect(state.selectedCell).toEqual({ row: 0, col: 0 });
+
+    state = enterDigit(state, 7);
+
+    expect(state.selectedDigit).toBe(7);
+    expect(state.selectedCell).toBeNull();
+  });
   it("pre-fills givens for lower difficulties and locks them", () => {
     const firstGiven = getGivenPositions(firstPuzzle.id, "low")[0];
     const expectedDigit = firstPuzzle.solution[firstGiven.row][firstGiven.col];
@@ -94,3 +106,4 @@ describe("game-state", () => {
     expect(enterDigit(state, digit).selectedDigit).toBeNull();
   });
 });
+

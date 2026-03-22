@@ -138,9 +138,12 @@ export function selectDigit(state: GameState, digit: number | null): GameState {
     return state;
   }
 
+  const nextDigit = state.selectedDigit === digit ? null : digit;
+
   return {
     ...state,
-    selectedDigit: state.selectedDigit === digit ? null : digit
+    selectedDigit: nextDigit,
+    selectedCell: null
   };
 }
 
@@ -358,3 +361,4 @@ export function switchPuzzle(state: GameState, puzzleId: string): GameState {
 export function switchPlayDifficulty(state: GameState, playDifficulty: PlayDifficulty): GameState {
   return createInitialState(state.puzzleId, playDifficulty);
 }
+
