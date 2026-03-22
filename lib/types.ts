@@ -1,4 +1,4 @@
-﻿export type CellValue = number | null;
+export type CellValue = number | null;
 
 export type Position = {
   row: number;
@@ -48,6 +48,7 @@ export type GameState = {
   selectedCell: Position | null;
   selectedDigit: number | null;
   noteMode: boolean;
+  isPaused: boolean;
   elapsedSeconds: number;
   history: Snapshot[];
   future: Snapshot[];
@@ -59,5 +60,6 @@ export type PersistedGameState = {
   playDifficulty: PlayDifficulty;
   values: CellValue[][];
   notes: number[][][];
+  isPaused: boolean;
   elapsedSeconds: number;
 };

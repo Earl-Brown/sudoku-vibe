@@ -45,6 +45,7 @@ export function createInitialState(
     selectedCell: null,
     selectedDigit: null,
     noteMode: false,
+    isPaused: false,
     elapsedSeconds: 0,
     history: [],
     future: [],
@@ -66,6 +67,7 @@ export function createStateFromPersisted(payload: PersistedGameState): GameState
     selectedCell: null,
     selectedDigit: null,
     noteMode: false,
+    isPaused: payload.isPaused ?? false,
     elapsedSeconds: payload.elapsedSeconds,
     history: [],
     future: [],
@@ -79,6 +81,7 @@ export function toPersistedState(state: GameState): PersistedGameState {
     playDifficulty: state.playDifficulty,
     values: state.values,
     notes: serializeNotes(state.notes),
+    isPaused: state.isPaused,
     elapsedSeconds: state.elapsedSeconds
   };
 }
@@ -127,6 +130,10 @@ export function getCompletedDigits(state: GameState) {
 }
 
 export function selectDigit(state: GameState, digit: number | null): GameState {
+  if (state.isPaused) {
+    return state;
+  }
+
   if (digit !== null && getCompletedDigits(state).has(digit)) {
     return state;
   }
@@ -138,6 +145,10 @@ export function selectDigit(state: GameState, digit: number | null): GameState {
 }
 
 export function selectCell(state: GameState, cell: Position | null): GameState {
+  if (state.isPaused) {
+    return state;
+  }
+
   if (!cell) {
     return {
       ...state,
@@ -162,14 +173,26 @@ export function selectCell(state: GameState, cell: Position | null): GameState {
 }
 
 export function toggleNoteMode(state: GameState): GameState {
+  if (state.isPaused) {
+    return state;
+  }
+
   return {
     ...state,
     noteMode: !state.noteMode
   };
 }
 
+export function togglePause(state: GameState): GameState {
+  return {
+    ...state,
+    isPaused: !state.isPaused,
+    selectedCell: !state.isPaused ? null : state.selectedCell
+  };
+}
+
 export function tick(state: GameState): GameState {
-  if (state.validation.isSolved) {
+  if (state.validation.isSolved || state.isPaused) {
     return state;
   }
 
@@ -204,6 +227,10 @@ function commitMutation(
   state: GameState,
   updater: (draft: { values: CellValue[][]; notes: NotesGrid }) => boolean
 ): GameState {
+  if (state.isPaused) {
+    return state;
+  }
+
   const draftValues = cloneValues(state.values);
   const draftNotes = cloneNotes(state.notes);
   const changed = updater({ values: draftValues, notes: draftNotes });
@@ -259,7 +286,7 @@ export function enterDigit(state: GameState, digit: number): GameState {
 }
 
 export function clearCell(state: GameState): GameState {
-  if (!state.selectedCell || state.validation.isSolved) {
+  if (!state.selectedCell || state.validation.isSolved || state.isPaused) {
     return state;
   }
 
@@ -285,6 +312,10 @@ export function clearCell(state: GameState): GameState {
 }
 
 export function undo(state: GameState): GameState {
+  if (state.isPaused) {
+    return state;
+  }
+
   const previous = state.history[state.history.length - 1];
   if (!previous) {
     return state;
@@ -299,6 +330,10 @@ export function undo(state: GameState): GameState {
 }
 
 export function redo(state: GameState): GameState {
+  if (state.isPaused) {
+    return state;
+  }
+
   const [next, ...remaining] = state.future;
   if (!next) {
     return state;

@@ -81,6 +81,31 @@ describe("GameApp", () => {
     expect(selectedDigitCell.className).toContain("peer");
   });
 
+  it("toggles pause state and blanks the board", async () => {
+    const user = userEvent.setup();
+    render(<GameApp />);
+
+    await user.selectOptions(screen.getByLabelText("Difficulty selector"), "killer");
+    await user.click(screen.getByRole("button", { name: "5" }));
+
+    const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
+    const firstCell = within(board).getByRole("button", { name: "Row 1 Column 1" });
+    await user.click(firstCell);
+    expect(firstCell).toHaveTextContent("5");
+
+    await user.click(screen.getByRole("button", { name: "Pause" }));
+
+    expect(screen.getByRole("button", { name: "Play" })).toBeInTheDocument();
+    expect(screen.getByText("Paused")).toBeInTheDocument();
+    expect(firstCell).not.toHaveTextContent("5");
+    expect(firstCell).toBeDisabled();
+
+    await user.click(screen.getByRole("button", { name: "Play" }));
+
+    expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
+    expect(firstCell).toHaveTextContent("5");
+  });
+
   it("disables a completed number only after all correct placements are filled", async () => {
     const user = userEvent.setup();
     render(<GameApp />);

@@ -427,3 +427,39 @@ h1 {
 }
 
 
+
+
+
+.board-shell {
+  position: relative;
+}
+
+.pause-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: rgba(245, 239, 228, 0.9);
+  text-align: center;
+  isolation: isolate;
+}
+
+.pause-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 18% 14%;
+  border-radius: 24px;
+  background: rgba(255, 252, 245, 0.96);
+  border: 1px solid rgba(122, 95, 58, 0.16);
+  box-shadow: var(--shadow);
+  z-index: -1;
+}
+
+.pause-overlay {
+  color: var(--ink);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

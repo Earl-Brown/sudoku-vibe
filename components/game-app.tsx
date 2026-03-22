@@ -17,6 +17,7 @@ import {
   switchPuzzle,
   tick,
   toggleNoteMode,
+  togglePause,
   undo
 } from "@/lib/game-state";
 import { GameState, PlayDifficulty, ValidationIssue } from "@/lib/types";
@@ -109,6 +110,12 @@ function useHydratedGameState() {
 
       if (event.key === "Backspace" || event.key === "Delete" || event.key === "0") {
         setState((current) => clearCell(current));
+        return;
+      }
+
+      if (event.key === " ") {
+        event.preventDefault();
+        setState((current) => togglePause(current));
         return;
       }
 
@@ -235,56 +242,60 @@ export function GameApp() {
 
       <section className="workspace">
         <div className="board-panel">
-          <div className="board" role="grid" aria-label="Killer Sudoku board">
-            {range(9).flatMap((row) =>
-              range(9).map((col) => {
-                const value = state.values[row][col];
-                const notes = state.notes[row][col];
-                const cageId = cageIdMap.get(keyForCell(row, col));
-                const currentCageState = cageId ? state.validation.cageState[cageId] : "idle";
-                const tooltip = getCellTooltip(state, row, col);
-                const hasBoxTop = row % 3 === 0;
-                const hasBoxLeft = col % 3 === 0;
-                const hasBoxBottom = row === 8;
-                const hasBoxRight = col === 8;
-                const borderClasses = [
-                  (row === 0 || cageIdMap.get(keyForCell(row - 1, col)) !== cageId) && !hasBoxTop ? "cage-top" : "",
-                  row === 8 && cageIdMap.get(keyForCell(row + 1, col)) !== cageId ? "cage-bottom" : "",
-                  (col === 0 || cageIdMap.get(keyForCell(row, col - 1)) !== cageId) && !hasBoxLeft ? "cage-left" : "",
-                  col === 8 && cageIdMap.get(keyForCell(row, col + 1)) !== cageId ? "cage-right" : "",
-                  hasBoxTop ? "box-top" : "",
-                  hasBoxLeft ? "box-left" : "",
-                  hasBoxBottom ? "box-bottom" : "",
-                  hasBoxRight ? "box-right" : ""
-                ]
-                  .filter(Boolean)
-                  .join(" ");
+          <div className={`board-shell ${state.isPaused ? "paused" : ""}`}>
+            <div className="board" role="grid" aria-label="Killer Sudoku board" aria-hidden={state.isPaused}>
+              {range(9).flatMap((row) =>
+                range(9).map((col) => {
+                  const value = state.values[row][col];
+                  const notes = state.notes[row][col];
+                  const cageId = cageIdMap.get(keyForCell(row, col));
+                  const currentCageState = cageId ? state.validation.cageState[cageId] : "idle";
+                  const tooltip = state.isPaused ? undefined : getCellTooltip(state, row, col);
+                  const hasBoxTop = row % 3 === 0;
+                  const hasBoxLeft = col % 3 === 0;
+                  const hasBoxBottom = row === 8;
+                  const hasBoxRight = col === 8;
+                  const borderClasses = [
+                    (row === 0 || cageIdMap.get(keyForCell(row - 1, col)) !== cageId) && !hasBoxTop ? "cage-top" : "",
+                    row === 8 && cageIdMap.get(keyForCell(row + 1, col)) !== cageId ? "cage-bottom" : "",
+                    (col === 0 || cageIdMap.get(keyForCell(row, col - 1)) !== cageId) && !hasBoxLeft ? "cage-left" : "",
+                    col === 8 && cageIdMap.get(keyForCell(row, col + 1)) !== cageId ? "cage-right" : "",
+                    hasBoxTop ? "box-top" : "",
+                    hasBoxLeft ? "box-left" : "",
+                    hasBoxBottom ? "box-bottom" : "",
+                    hasBoxRight ? "box-right" : ""
+                  ]
+                    .filter(Boolean)
+                    .join(" ");
 
-                return (
-                  <button
-                    key={keyForCell(row, col)}
-                    type="button"
-                    className={`${buildCellClassNames(state, row, col, selectedDigitCells)} ${borderClasses} cage-${currentCageState}`}
-                    onClick={() => setState((current) => selectCell(current, { row, col }))}
-                    aria-label={`Row ${row + 1} Column ${col + 1}`}
-                    title={tooltip}
-                  >
-                    {cageLabelMap.has(keyForCell(row, col)) ? (
-                      <span className="cage-label">{cageLabelMap.get(keyForCell(row, col))}</span>
-                    ) : null}
-                    {value ? (
-                      <span className="cell-value">{value}</span>
-                    ) : (
-                      <span className="notes-grid">
-                        {range(9).map((noteIndex) => (
-                          <span key={noteIndex}>{notes.has(noteIndex + 1) ? noteIndex + 1 : ""}</span>
-                        ))}
-                      </span>
-                    )}
-                  </button>
-                );
-              })
-            )}
+                  return (
+                    <button
+                      key={keyForCell(row, col)}
+                      type="button"
+                      className={`${buildCellClassNames(state, row, col, selectedDigitCells)} ${borderClasses} cage-${currentCageState}`}
+                      onClick={() => setState((current) => selectCell(current, { row, col }))}
+                      aria-label={`Row ${row + 1} Column ${col + 1}`}
+                      title={tooltip}
+                      disabled={state.isPaused}
+                    >
+                      {state.isPaused ? null : cageLabelMap.has(keyForCell(row, col)) ? (
+                        <span className="cage-label">{cageLabelMap.get(keyForCell(row, col))}</span>
+                      ) : null}
+                      {state.isPaused ? null : value ? (
+                        <span className="cell-value">{value}</span>
+                      ) : (
+                        <span className="notes-grid">
+                          {range(9).map((noteIndex) => (
+                            <span key={noteIndex}>{notes.has(noteIndex + 1) ? noteIndex + 1 : ""}</span>
+                          ))}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+            {state.isPaused ? <div className="pause-overlay">Paused</div> : null}
           </div>
 
           <div className="toolbar toolbar-below">
@@ -321,14 +332,17 @@ export function GameApp() {
             <button onClick={() => setState((current) => toggleNoteMode(current))} className={state.noteMode ? "active" : ""}>
               Notes {state.noteMode ? "On" : "Off"}
             </button>
-            <button onClick={() => setState((current) => undo(current))} disabled={state.history.length === 0}>
+            <button onClick={() => setState((current) => undo(current))} disabled={state.history.length === 0 || state.isPaused}>
               Undo
             </button>
-            <button onClick={() => setState((current) => redo(current))} disabled={state.future.length === 0}>
+            <button onClick={() => setState((current) => redo(current))} disabled={state.future.length === 0 || state.isPaused}>
               Redo
             </button>
-            <button onClick={() => setState((current) => clearCell(current))}>Erase</button>
+            <button onClick={() => setState((current) => clearCell(current))} disabled={state.isPaused}>Erase</button>
             <button onClick={() => setState((current) => resetPuzzle(current))}>Reset</button>
+            <button onClick={() => setState((current) => togglePause(current))}>
+              {state.isPaused ? "Play" : "Pause"}
+            </button>
           </div>
         </div>
 
@@ -345,7 +359,7 @@ export function GameApp() {
                     key={index}
                     className={`${state.selectedDigit === digit ? "active" : ""} ${completed ? "completed" : ""}`.trim()}
                     onClick={() => setState((current) => enterDigit(current, digit))}
-                    disabled={completed}
+                    disabled={completed || state.isPaused}
                     aria-label={completed ? `${digit} complete` : `${digit}`}
                   >
                     <span className="keypad-digit">{digit}</span>
@@ -353,7 +367,7 @@ export function GameApp() {
                   </button>
                 );
               })}
-              <button className="wide" onClick={() => setState((current) => clearCell(current))}>
+              <button className="wide" onClick={() => setState((current) => clearCell(current))} disabled={state.isPaused}>
                 Clear cell
               </button>
             </div>
@@ -387,6 +401,7 @@ export function GameApp() {
               <li>Low, Medium, and High include starter digits. Killer uses none.</li>
               <li>Select a number first, then click cells to place it. Choosing a new number never overwrites the current cell.</li>
               <li>Selected numbers light up their placed cells, and an active cell still highlights its related row, column, and box.</li>
+              <li>Use Pause to blank the board and freeze play until you resume.</li>
               <li>A number locks itself once all nine correct placements are on the board.</li>
             </ul>
           </div>
@@ -394,16 +409,25 @@ export function GameApp() {
           <div className="panel">
             <h2>Selection</h2>
             <p>
-              {state.selectedCell
-                ? `Row ${state.selectedCell.row + 1}, Column ${state.selectedCell.col + 1}`
-                : "Choose a cell to begin."}
+              {state.isPaused
+                ? "Game is paused."
+                : state.selectedCell
+                  ? `Row ${state.selectedCell.row + 1}, Column ${state.selectedCell.col + 1}`
+                  : "Choose a cell to begin."}
             </p>
             <p>
               {state.validation.issues.length === 0
                 ? "No rule conflicts detected."
                 : `${state.validation.issues.length} issue(s) highlighted.`}
             </p>
-            <p>{state.selectedDigit ? `Ready to place ${state.selectedDigit}.` : "Pick a number to start placing values."}</p>
+            <p>
+              {state.isPaused
+                ? "Press Play to resume."
+                : state.selectedDigit
+                  ? `Ready to place ${state.selectedDigit}.`
+                  : "Pick a number to start placing values."}
+            </p>
+            <p>{state.isPaused ? "Timer is paused." : `Time: ${formatTime(state.elapsedSeconds)}`}</p>
           </div>
         </aside>
       </section>
