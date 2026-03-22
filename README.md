@@ -69,10 +69,7 @@ The repository vendors the Gordon Royle 17-clue source set in [data/gordon-royle
 
 The app is client-side and offline-first. It does not require a backend, account system, or AI integration. Puzzle progress is stored locally in the browser.
 
-## To-Do
-
-- Refactor the UI to be more mobile-friendly
-
 ## Dev Notes
 
 - Ongoing project handoff notes and issue-resolution history live in [docs/hand-off.md](D:/temp/Codex/Killer Sudoku/docs/hand-off.md)
+
