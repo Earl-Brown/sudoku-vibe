@@ -230,71 +230,11 @@ export function GameApp() {
   return (
     <main className="shell">
       <section className="hero">
-        <div>
-          <h1>Killer Sudoku</h1>
-        </div>
-        <div className="stats">
-          <div className="stat-card">
-            <span>Clue level</span>
-            <strong>{playDifficultyLabels[state.playDifficulty]}</strong>
-          </div>
-          <div className="stat-card">
-            <span>Number selected</span>
-            <strong>{state.selectedDigit ?? "None"}</strong>
-          </div>
-          <div className="stat-card">
-            <span>Status</span>
-            <strong>{state.validation.isSolved ? "Solved" : "In progress"}</strong>
-          </div>
-        </div>
+        <h1>Killer Sudoku</h1>
       </section>
 
       <section className="workspace">
         <div className="board-panel">
-          <div className="toolbar">
-            <label className="select-wrap">
-              <span>Puzzle</span>
-              <select
-                aria-label="Puzzle selector"
-                value={state.puzzleId}
-                onChange={(event) => setState((current) => switchPuzzle(current, event.target.value))}
-              >
-                {puzzles.map((entry) => (
-                  <option key={entry.id} value={entry.id}>
-                    {entry.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="select-wrap">
-              <span>Difficulty</span>
-              <select
-                aria-label="Difficulty selector"
-                value={state.playDifficulty}
-                onChange={(event) =>
-                  setState((current) => switchPlayDifficulty(current, event.target.value as PlayDifficulty))
-                }
-              >
-                {Object.entries(playDifficultyLabels).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button onClick={() => setState((current) => toggleNoteMode(current))} className={state.noteMode ? "active" : ""}>
-              Notes {state.noteMode ? "On" : "Off"}
-            </button>
-            <button onClick={() => setState((current) => undo(current))} disabled={state.history.length === 0}>
-              Undo
-            </button>
-            <button onClick={() => setState((current) => redo(current))} disabled={state.future.length === 0}>
-              Redo
-            </button>
-            <button onClick={() => setState((current) => clearCell(current))}>Erase</button>
-            <button onClick={() => setState((current) => resetPuzzle(current))}>Reset</button>
-          </div>
-
           <div className="board" role="grid" aria-label="Killer Sudoku board">
             {range(9).flatMap((row) =>
               range(9).map((col) => {
@@ -345,6 +285,50 @@ export function GameApp() {
                 );
               })
             )}
+          </div>
+
+          <div className="toolbar toolbar-below">
+            <label className="select-wrap">
+              <span>Puzzle</span>
+              <select
+                aria-label="Puzzle selector"
+                value={state.puzzleId}
+                onChange={(event) => setState((current) => switchPuzzle(current, event.target.value))}
+              >
+                {puzzles.map((entry) => (
+                  <option key={entry.id} value={entry.id}>
+                    {entry.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="select-wrap">
+              <span>Difficulty</span>
+              <select
+                aria-label="Difficulty selector"
+                value={state.playDifficulty}
+                onChange={(event) =>
+                  setState((current) => switchPlayDifficulty(current, event.target.value as PlayDifficulty))
+                }
+              >
+                {Object.entries(playDifficultyLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button onClick={() => setState((current) => toggleNoteMode(current))} className={state.noteMode ? "active" : ""}>
+              Notes {state.noteMode ? "On" : "Off"}
+            </button>
+            <button onClick={() => setState((current) => undo(current))} disabled={state.history.length === 0}>
+              Undo
+            </button>
+            <button onClick={() => setState((current) => redo(current))} disabled={state.future.length === 0}>
+              Redo
+            </button>
+            <button onClick={() => setState((current) => clearCell(current))}>Erase</button>
+            <button onClick={() => setState((current) => resetPuzzle(current))}>Reset</button>
           </div>
         </div>
 

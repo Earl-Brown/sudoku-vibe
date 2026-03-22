@@ -35,7 +35,7 @@ select {
 
 .shell {
   min-height: 100vh;
-  padding: 32px;
+  padding: 24px 32px 32px;
 }
 
 .loading {
@@ -44,11 +44,7 @@ select {
 }
 
 .hero {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 24px;
-  align-items: end;
-  margin: 0 auto 28px;
+  margin: 0 auto 10px;
   max-width: 1400px;
 }
 
@@ -73,13 +69,6 @@ h1 {
   line-height: 1.6;
 }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.stat-card,
 .board-panel,
 .panel {
   background: var(--paper);
@@ -89,41 +78,29 @@ h1 {
   box-shadow: var(--shadow);
 }
 
-.stat-card {
-  padding: 18px;
-}
-
-.stat-card span {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--muted);
-  font-size: 0.84rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.stat-card strong {
-  font-size: 1.4rem;
-}
-
 .workspace {
   display: grid;
   grid-template-columns: minmax(300px, 860px) minmax(280px, 360px);
   gap: 24px;
   align-items: start;
-  margin: 0 auto;
+  margin: -18px auto 0;
   max-width: 1400px;
 }
 
 .board-panel {
-  padding: 20px;
+  display: grid;
+  gap: 14px;
+  padding: 16px 20px 18px;
 }
 
 .toolbar {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 18px;
+}
+
+.toolbar-below {
+  margin-top: 2px;
 }
 
 .toolbar button,
@@ -341,8 +318,8 @@ h1 {
     grid-template-columns: 1fr;
   }
 
-  .stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .workspace {
+    margin-top: 0;
   }
 }
 
@@ -351,9 +328,14 @@ h1 {
     padding: 18px;
   }
 
-  .stats {
-    grid-template-columns: 1fr;
+  .hero {
+    margin-bottom: 14px;
   }
+
+  .workspace {
+    margin-top: 0;
+  }
+
 
   .cell {
     min-height: 40px;
@@ -443,21 +425,5 @@ h1 {
 .legend-swatch.box-border {
   border: 3px solid var(--box-line);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
