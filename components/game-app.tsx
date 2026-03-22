@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { getGivenPositions, getPuzzleById, isGivenCell, puzzles } from "@/lib/puzzles";
+import { getGivenPositions, getPuzzleById, getRandomPuzzleId, isGivenCell, puzzles } from "@/lib/puzzles";
 import {
   clearCell,
   createInitialState,
@@ -339,17 +339,21 @@ export function GameApp() {
               Redo
             </button>
             <button onClick={() => setState((current) => clearCell(current))} disabled={state.isPaused}>Erase</button>
-            <button onClick={() => setState((current) => resetPuzzle(current))}>Reset</button>
-            <button onClick={() => setState((current) => togglePause(current))}>
-              {state.isPaused ? "Play" : "Pause"}
-            </button>
             <div className="toolbar-timer">{formatTime(state.elapsedSeconds)}</div>
           </div>
         </div>
 
         <aside className="sidebar">
           <div className="panel">
-            <h2>Controls</h2>
+            <div className="session-actions">
+              <button onClick={() => setState((current) => switchPuzzle(current, getRandomPuzzleId(current.puzzleId)))}>
+                New game
+              </button>
+              <button onClick={() => setState((current) => resetPuzzle(current))}>Reset</button>
+              <button onClick={() => setState((current) => togglePause(current))}>
+                {state.isPaused ? "Play" : "Pause"}
+              </button>
+            </div>
             <div className="keypad">
               {range(9).map((index) => {
                 const digit = index + 1;
@@ -408,5 +412,7 @@ export function GameApp() {
     </main>
   );
 }
+
+
 
 

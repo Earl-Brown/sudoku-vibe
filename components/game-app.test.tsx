@@ -1,7 +1,7 @@
 import React from "react";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GameApp } from "@/components/game-app";
 import { getGivenPositions, puzzles } from "@/lib/puzzles";
 
@@ -116,6 +116,27 @@ describe("GameApp", () => {
     expect(selectedRowPeer.className).toContain("peer");
   });
 
+  it("starts a random new game from the available puzzle catalog", async () => {
+    const user = userEvent.setup();
+    const randomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
+
+    render(<GameApp />);
+
+    await user.selectOptions(screen.getByLabelText("Difficulty selector"), "killer");
+    await user.click(screen.getByRole("button", { name: "5" }));
+
+    const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
+    const firstCell = within(board).getByRole("button", { name: "Row 1 Column 1" });
+    await user.click(firstCell);
+    expect(firstCell).toHaveTextContent("5");
+
+    await user.click(screen.getByRole("button", { name: "New game" }));
+
+    expect(screen.getByLabelText("Puzzle selector")).toHaveValue(puzzles[1].id);
+    expect(within(board).getByRole("button", { name: "Row 1 Column 1" })).not.toHaveTextContent("5");
+
+    randomSpy.mockRestore();
+  });
   it("toggles pause state and blanks the board", async () => {
     const user = userEvent.setup();
     render(<GameApp />);
@@ -165,4 +186,5 @@ describe("GameApp", () => {
     expect(completedButton).toHaveTextContent("Done");
   });
 });
+
 

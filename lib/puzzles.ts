@@ -63,3 +63,17 @@ export function createStartingValues(puzzleId: string, playDifficulty: PlayDiffi
 export function isGivenCell(puzzleId: string, playDifficulty: PlayDifficulty, row: number, col: number) {
   return getGivenPositions(puzzleId, playDifficulty).some((cell) => cell.row === row && cell.col === col);
 }
+
+export function getRandomPuzzleId(currentPuzzleId?: string) {
+  if (puzzles.length === 0) {
+    throw new Error("No puzzles are available");
+  }
+
+  const candidates = currentPuzzleId
+    ? puzzles.filter((puzzle) => puzzle.id !== currentPuzzleId)
+    : puzzles;
+
+  const pool = candidates.length > 0 ? candidates : puzzles;
+  const index = Math.floor(Math.random() * pool.length);
+  return pool[index].id;
+}

@@ -264,6 +264,33 @@ h1 {
   font-size: 1.25rem;
 }
 
+.session-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.session-actions button {
+  border: 1px solid rgba(84, 63, 38, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  cursor: pointer;
+  padding: 10px 12px;
+  transition: transform 140ms ease, background 140ms ease;
+}
+
+.session-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.session-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .keypad {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -350,6 +377,10 @@ h1 {
   .select-wrap {
     flex: 1 1 calc(50% - 12px);
     justify-content: center;
+  }
+
+  .session-actions {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -516,5 +547,6 @@ h1 {
   margin: 0 0 12px;
   font-size: 1rem;
 }
+
 
 
