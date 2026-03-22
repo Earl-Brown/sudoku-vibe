@@ -343,6 +343,7 @@ export function GameApp() {
             <button onClick={() => setState((current) => togglePause(current))}>
               {state.isPaused ? "Play" : "Pause"}
             </button>
+            <div className="toolbar-timer">{formatTime(state.elapsedSeconds)}</div>
           </div>
         </div>
 
@@ -427,10 +428,10 @@ export function GameApp() {
                   ? `Ready to place ${state.selectedDigit}.`
                   : "Pick a number to start placing values."}
             </p>
-            <p>{state.isPaused ? "Timer is paused." : `Time: ${formatTime(state.elapsedSeconds)}`}</p>
           </div>
         </aside>
       </section>
     </main>
   );
 }
+
