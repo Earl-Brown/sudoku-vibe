@@ -255,15 +255,19 @@ export function GameApp() {
                   const hasBoxLeft = col % 3 === 0;
                   const hasBoxBottom = row === 8;
                   const hasBoxRight = col === 8;
+                  const hasCageTop = row === 0 || cageIdMap.get(keyForCell(row - 1, col)) !== cageId;
+                  const hasCageBottom = row === 8 && cageIdMap.get(keyForCell(row + 1, col)) !== cageId;
+                  const hasCageLeft = col === 0 || cageIdMap.get(keyForCell(row, col - 1)) !== cageId;
+                  const hasCageRight = col === 8 && cageIdMap.get(keyForCell(row, col + 1)) !== cageId;
                   const borderClasses = [
-                    (row === 0 || cageIdMap.get(keyForCell(row - 1, col)) !== cageId) && !hasBoxTop ? "cage-top" : "",
-                    row === 8 && cageIdMap.get(keyForCell(row + 1, col)) !== cageId ? "cage-bottom" : "",
-                    (col === 0 || cageIdMap.get(keyForCell(row, col - 1)) !== cageId) && !hasBoxLeft ? "cage-left" : "",
-                    col === 8 && cageIdMap.get(keyForCell(row, col + 1)) !== cageId ? "cage-right" : "",
-                    hasBoxTop ? "box-top" : "",
-                    hasBoxLeft ? "box-left" : "",
-                    hasBoxBottom ? "box-bottom" : "",
-                    hasBoxRight ? "box-right" : ""
+                    hasCageTop && !hasBoxTop ? "cage-top" : "",
+                    hasCageBottom && !hasBoxBottom ? "cage-bottom" : "",
+                    hasCageLeft && !hasBoxLeft ? "cage-left" : "",
+                    hasCageRight && !hasBoxRight ? "cage-right" : "",
+                    hasBoxTop ? (hasCageTop ? "box-top-overlap" : "box-top") : "",
+                    hasBoxLeft ? (hasCageLeft ? "box-left-overlap" : "box-left") : "",
+                    hasBoxBottom ? (hasCageBottom ? "box-bottom-overlap" : "box-bottom") : "",
+                    hasBoxRight ? (hasCageRight ? "box-right-overlap" : "box-right") : ""
                   ]
                     .filter(Boolean)
                     .join(" ");
@@ -412,6 +416,7 @@ export function GameApp() {
     </main>
   );
 }
+
 
 
 
