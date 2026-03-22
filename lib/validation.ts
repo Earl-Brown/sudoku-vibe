@@ -75,6 +75,15 @@ export function validateBoard(values: (number | null)[][], puzzle: PuzzleDefinit
     }
   }
 
+  for (let row = 0; row < 9; row += 1) {
+    for (let col = 0; col < 9; col += 1) {
+      const value = values[row][col];
+      if (value !== null && value !== puzzle.solution[row][col]) {
+        issues.push({ row, col, reason: "solution" });
+      }
+    }
+  }
+
   const cageState: ValidationResult["cageState"] = {};
 
   puzzle.cages.forEach((cage) => {

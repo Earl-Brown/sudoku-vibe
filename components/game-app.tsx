@@ -45,7 +45,8 @@ const issueLabels: Record<ValidationIssue["reason"], string> = {
   column: "Duplicates a number in this column",
   box: "Duplicates a number in this 3x3 box",
   "cage-sum": "Breaks this cage total",
-  "cage-repeat": "Repeats a number inside this cage"
+  "cage-repeat": "Repeats a number inside this cage",
+  solution: "Incorrect value for this cell"
 };
 
 function keyForCell(row: number, col: number) {
@@ -416,6 +417,7 @@ export function GameApp() {
     </main>
   );
 }
+
 
 
 

@@ -67,6 +67,15 @@ describe("validateBoard", () => {
     expect(result.cageState[cage!.id]).toBe("invalid");
   });
 
+  it("flags an incorrect digit even when no visible starter clue causes a direct duplicate", () => {
+    const puzzle = getPuzzleById("royle-00006");
+    const values = createEmptyValues();
+    values[2][5] = 6;
+
+    const result = validateBoard(values, puzzle);
+
+    expect(result.issues.some((issue) => issue.row === 2 && issue.col === 5 && issue.reason === "solution")).toBe(true);
+  });
   it("marks every shipped puzzle solution as solved", () => {
     puzzles.forEach((puzzle) => {
       const result = validateBoard(puzzle.solution, puzzle);
@@ -92,3 +101,4 @@ describe("validateBoard", () => {
     });
   });
 });
+

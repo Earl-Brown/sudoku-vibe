@@ -6,7 +6,7 @@
 - Default working branch: `master`
 - Framework: Next.js static export
 - Deployment target: GitHub Pages
-- Current HEAD: `6345508` (`Infrastructure: multiple development device prep`)
+- Current HEAD: `16bf086` (`Expand project handoff log`)
 - Latest gameplay/UI release tag: `0.9.2`
 
 ## Current Status
@@ -32,7 +32,6 @@ npm run preview
 
 - Refactor the UI to be more mobile-friendly
 - Remove the conflict tooltip from board cells
-- Continue investigating the `Royle 00006` low/medium clue-level confusion if it comes back up
 - Consider moving puzzle-set selection to a dedicated configuration page and making the active puzzle display read-only in the main UI
 
 ## Issue Log
@@ -113,6 +112,12 @@ Use this section to record issues, how they were fixed, and the commit that cont
 - Resolution: Updated the workflow build runtime from Node `22` to Node `24`.
 - Final commit: `386e820` (`Update Pages workflow to Node 24`)
 
+#### 2026-03-21 - Wrong entries could appear valid on lower-information clue levels
+
+- Issue: A move like `Royle 00006` row 3 column 6 = `6` could look valid in Killer/High and only turn red in Medium/Low once extra givens exposed the contradiction.
+- Resolution: Added solution-based validation so incorrect digits are flagged consistently across all clue levels, and added a regression test for the Royle 00006 case.
+- Final commit: Included in the next release commit for this fix.
+
 #### 2026-03-21 - Repository setup needed to be safer for multi-device development
 
 - Issue: The repo needed additional infrastructure/setup hardening for work across multiple development devices.
@@ -126,3 +131,5 @@ Use this section to record issues, how they were fixed, and the commit that cont
 - Issue: What was broken or confusing.
 - Resolution: What changed and why it fixed the problem.
 - Final commit: `<hash>` (`Commit message`)
+
+

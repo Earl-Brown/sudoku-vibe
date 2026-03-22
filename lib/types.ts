@@ -34,7 +34,7 @@ export type Snapshot = {
 export type ValidationIssue = {
   row: number;
   col: number;
-  reason: "row" | "column" | "box" | "cage-sum" | "cage-repeat";
+  reason: "row" | "column" | "box" | "cage-sum" | "cage-repeat" | "solution";
 };
 
 export type ValidationResult = {
@@ -66,3 +66,4 @@ export type PersistedGameState = {
   isPaused: boolean;
   elapsedSeconds: number;
 };
+
