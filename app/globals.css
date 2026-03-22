@@ -161,7 +161,7 @@ h1 {
   gap: 0;
   overflow: hidden;
   border-radius: 20px;
-  border: 3px solid var(--box-line);
+  border: 2px solid var(--box-line);
   background: #fffdfa;
   aspect-ratio: 1;
 }
@@ -227,19 +227,19 @@ h1 {
 }
 
 .cage-top {
-  border-top: 1px dashed #000000;
+  border-top: 1px dashed #111111;
 }
 
 .cage-bottom {
-  border-bottom: 1px dashed #000000;
+  border-bottom: 1px dashed #111111;
 }
 
 .cage-left {
-  border-left: 1px dashed #000000;
+  border-left: 1px dashed #111111;
 }
 
 .cage-right {
-  border-right: 1px dashed #000000;
+  border-right: 1px dashed #111111;
 }
 
 .cage-complete {
@@ -385,19 +385,19 @@ h1 {
 }
 
 .box-top {
-  border-top: 3px solid var(--box-line);
+  border-top: 2px solid var(--box-line);
 }
 
 .box-bottom {
-  border-bottom: 3px solid var(--box-line);
+  border-bottom: 2px solid var(--box-line);
 }
 
 .box-left {
-  border-left: 3px solid var(--box-line);
+  border-left: 2px solid var(--box-line);
 }
 
 .box-right {
-  border-right: 3px solid var(--box-line);
+  border-right: 2px solid var(--box-line);
 }
 
 .cell.given {
@@ -450,11 +450,11 @@ h1 {
 }
 
 .legend-swatch.cage-border {
-  border: 1px dashed #000000;
+  border: 1px dashed #111111;
 }
 
 .legend-swatch.box-border {
-  border: 3px solid var(--box-line);
+  border: 2px solid var(--box-line);
 }
 
 
@@ -547,6 +547,8 @@ h1 {
   margin: 0 0 12px;
   font-size: 1rem;
 }
+
+
 
 
 

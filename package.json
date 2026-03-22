@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "generate:puzzles": "node scripts/generate-royle-puzzles.cjs",
-    "build": "npm run generate:puzzles && next build",
+    "build": "npm run generate:puzzles && next build && node scripts/finalize-static-export.cjs",
+    "preview": "node scripts/preview-static.cjs",
+    "deploy:prepare": "npm run build",
     "start": "next start",
     "test": "npm run generate:puzzles && vitest run"
   },
