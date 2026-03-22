@@ -45,6 +45,42 @@ describe("GameApp", () => {
     expect(screen.getByText("Ready to place 7.")).toBeInTheDocument();
   });
 
+  it("highlights only placed copies of the selected digit when no cell is active", async () => {
+    const user = userEvent.setup();
+    render(<GameApp />);
+
+    await user.selectOptions(screen.getByLabelText("Difficulty selector"), "low");
+    await user.click(screen.getByRole("button", { name: "8" }));
+
+    const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
+    const selectedDigitCell = within(board).getByRole("button", { name: "Row 3 Column 2" });
+    const rowOnlyCell = within(board).getByRole("button", { name: "Row 3 Column 6" });
+    const boxOnlyCell = within(board).getByRole("button", { name: "Row 1 Column 3" });
+
+    expect(selectedDigitCell.className).toContain("peer");
+    expect(rowOnlyCell.className).not.toContain("peer");
+    expect(boxOnlyCell.className).not.toContain("peer");
+  });
+
+  it("keeps selected-cell highlighting stable when a digit is also selected", async () => {
+    const user = userEvent.setup();
+    render(<GameApp />);
+
+    await user.selectOptions(screen.getByLabelText("Difficulty selector"), "low");
+    await user.click(screen.getByRole("button", { name: "8" }));
+
+    const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
+    const selectedGivenCell = within(board).getByRole("button", { name: "Row 4 Column 1" });
+    const selectedRowPeer = within(board).getByRole("button", { name: "Row 4 Column 6" });
+    const selectedDigitCell = within(board).getByRole("button", { name: "Row 3 Column 2" });
+
+    await user.click(selectedGivenCell);
+
+    expect(selectedGivenCell.className).toContain("selected");
+    expect(selectedRowPeer.className).toContain("peer");
+    expect(selectedDigitCell.className).toContain("peer");
+  });
+
   it("disables a completed number only after all correct placements are filled", async () => {
     const user = userEvent.setup();
     render(<GameApp />);

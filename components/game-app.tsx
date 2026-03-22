@@ -161,9 +161,33 @@ function getCageLabelMap(puzzleId: string) {
   return map;
 }
 
-function buildCellClassNames(state: GameState, row: number, col: number) {
+function getSelectedDigitCells(state: GameState) {
+  const cells = new Set<string>();
+
+  if (state.selectedDigit === null) {
+    return cells;
+  }
+
+  range(9).forEach((row) => {
+    range(9).forEach((col) => {
+      if (state.values[row][col] === state.selectedDigit) {
+        cells.add(keyForCell(row, col));
+      }
+    });
+  });
+
+  return cells;
+}
+
+function buildCellClassNames(
+  state: GameState,
+  row: number,
+  col: number,
+  selectedDigitCells: Set<string>
+) {
   const classes = ["cell"];
   const selected = state.selectedCell;
+  const isSelectedDigitCell = selectedDigitCells.has(keyForCell(row, col));
 
   if (selected?.row === row && selected?.col === col) {
     classes.push("selected");
@@ -174,6 +198,8 @@ function buildCellClassNames(state: GameState, row: number, col: number) {
     Math.floor(selected.row / 3) === Math.floor(row / 3) &&
     Math.floor(selected.col / 3) === Math.floor(col / 3)
   ) {
+    classes.push("peer");
+  } else if (isSelectedDigitCell) {
     classes.push("peer");
   }
 
@@ -194,6 +220,7 @@ export function GameApp() {
   const cageIdMap = useMemo(() => getCageIdMap(state.puzzleId), [state.puzzleId]);
   const cageLabelMap = useMemo(() => getCageLabelMap(state.puzzleId), [state.puzzleId]);
   const completedDigits = useMemo(() => getCompletedDigits(state), [state]);
+  const selectedDigitCells = useMemo(() => getSelectedDigitCells(state), [state]);
   const givenCount = getGivenPositions(state.playDifficulty).length;
 
   if (!ready) {
@@ -297,7 +324,7 @@ export function GameApp() {
                   <button
                     key={keyForCell(row, col)}
                     type="button"
-                    className={`${buildCellClassNames(state, row, col)} ${borderClasses} cage-${currentCageState}`}
+                    className={`${buildCellClassNames(state, row, col, selectedDigitCells)} ${borderClasses} cage-${currentCageState}`}
                     onClick={() => setState((current) => selectCell(current, { row, col }))}
                     aria-label={`Row ${row + 1} Column ${col + 1}`}
                     title={tooltip}
@@ -375,6 +402,7 @@ export function GameApp() {
               <li>Cages must add up to their corner total and cannot repeat a digit.</li>
               <li>Low, Medium, and High include starter digits. Killer uses none.</li>
               <li>Select a number first, then click cells to place it. Choosing a new number never overwrites the current cell.</li>
+              <li>Selected numbers light up their placed cells, and an active cell still highlights its related row, column, and box.</li>
               <li>A number locks itself once all nine correct placements are on the board.</li>
             </ul>
           </div>
