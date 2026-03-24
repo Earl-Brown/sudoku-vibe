@@ -15,7 +15,7 @@
 - The site is configured to build as a static export
 - The workflow build Node version is set to `24`
 - The exported `out/` folder is finalized with `.nojekyll`
-- `README.md` includes deployment guidance and a small project to-do list
+- `README.md` includes deployment guidance and local workflow notes
 - Ongoing project notes and issue history live in this file
 
 ## Useful Commands
@@ -26,6 +26,9 @@ git push
 npm test
 npm run build
 npm run preview
+start-server.bat
+stop-server.bat
+full-rebuild.bat
 ```
 
 ## Open To-Dos
@@ -124,6 +127,12 @@ Use this section to record issues, how they were fixed, and the commit that cont
 - Resolution: Added infrastructure prep captured in the current HEAD commit.
 - Final commit: `6345508` (`Infrastructure: multiple development device prep`)
 
+#### 2026-03-24 - Repeated permission prompts were slowing down local dev-server workflows
+
+- Issue: Starting, stopping, and fully rebuilding the local dev server required repeated manual commands and approval prompts.
+- Resolution: Added `start-server.bat`, `stop-server.bat`, and `full-rebuild.bat`, with the running server PID tracked in `.dev-server.pid`.
+- Final commit: Pending current work.
+
 ### Template
 
 #### YYYY-MM-DD - Short issue title
@@ -131,5 +140,3 @@ Use this section to record issues, how they were fixed, and the commit that cont
 - Issue: What was broken or confusing.
 - Resolution: What changed and why it fixed the problem.
 - Final commit: `<hash>` (`Commit message`)
-
-

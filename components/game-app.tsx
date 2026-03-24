@@ -204,6 +204,37 @@ function buildCellClassNames(
   return classes.join(" ");
 }
 
+function IconButton({
+  className,
+  label,
+  title,
+  disabled,
+  active,
+  onClick,
+  children
+}: {
+  className: string;
+  label: string;
+  title?: string;
+  disabled?: boolean;
+  active?: boolean;
+  onClick?: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className={`${className} ${active ? "active" : ""}`.trim()}
+      aria-label={label}
+      title={title ?? label}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function GameApp() {
   const { ready, state, setState } = useHydratedGameState();
   const cageIdMap = useMemo(() => getCageIdMap(state.puzzleId), [state.puzzleId]);
@@ -304,53 +335,72 @@ export function GameApp() {
                 );
               })}
 
-              <button
-                type="button"
+              <IconButton
+                className="keypad-home"
+                label="Home"
+                disabled={state.isPaused}
+                onClick={() => undefined}
+              >
+                <svg viewBox="0 0 16 16" aria-hidden="true" className="tool-icon">
+                  <path d="M7.293 1.5a1 1 0 0 1 1.414 0L11 3.793V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v3.293l2.354 2.353a.5.5 0 0 1-.708.708L8 2.207l-5 5V13.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 2 13.5V8.207l-.646.647a.5.5 0 1 1-.708-.708z" />
+                  <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.354-5.854 1.5 1.5a.5.5 0 0 1-.708.708L13 11.707V14.5a.5.5 0 1 1-1 0v-2.793l-.646.647a.5.5 0 0 1-.708-.707l1.5-1.5a.5.5 0 0 1 .708 0Z" />
+                </svg>
+              </IconButton>
+
+              <IconButton
                 className="keypad-pause"
+                label={state.isPaused ? "Play" : "Pause"}
+                disabled={false}
                 onClick={() => setState((current) => togglePause(current))}
-                aria-label={state.isPaused ? "Play" : "Pause"}
-                title={state.isPaused ? "Play" : "Pause"}
               >
                 {state.isPaused ? (
-                  <svg viewBox="0 0 24 24" aria-hidden="true" className="pause-icon">
-                    <path d="M8 6v12l10-6z" />
+                  <svg viewBox="0 0 16 16" aria-hidden="true" className="tool-icon">
+                    <path d="M10.804 8 5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z" />
                   </svg>
                 ) : (
-                  <svg viewBox="0 0 24 24" aria-hidden="true" className="pause-icon">
-                    <path d="M8 5h3v14H8z" />
-                    <path d="M13 5h3v14h-3z" />
+                  <svg viewBox="0 0 16 16" aria-hidden="true" className="tool-icon">
+                    <path d="M6 3.5a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5m4 0a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5" />
                   </svg>
                 )}
-              </button>
+              </IconButton>
 
-              <button
-                type="button"
-                className={`keypad-erase ${state.eraseMode ? "active" : ""}`.trim()}
-                onClick={() => setState((current) => toggleEraseMode(current))}
+              <IconButton
+                className="keypad-notes"
+                label="Notes"
+                active={state.noteMode}
                 disabled={state.isPaused}
-                aria-label="Erase"
-                title="Erase"
+                onClick={() => setState((current) => toggleNoteMode(current))}
               >
-                <svg viewBox="0 0 24 24" aria-hidden="true" className="eraser-icon">
-                  <path d="M3 15.5 12.5 6a2.8 2.8 0 0 1 4 0l4 4a2.8 2.8 0 0 1 0 4l-4.5 4.5H8a3 3 0 0 1-2.1-.9L3 15.5Z" />
-                  <path d="M13 18.5h8" />
+                <svg viewBox="0 0 16 16" aria-hidden="true" className="tool-icon">
+                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
                 </svg>
-              </button>
+              </IconButton>
 
-              <button
-                type="button"
-                className="keypad-action keypad-reset"
-                onClick={() => setState((current) => resetPuzzle(current))}
+              <IconButton
+                className="keypad-erase"
+                label="Erase"
+                active={state.eraseMode}
                 disabled={state.isPaused}
+                onClick={() => setState((current) => toggleEraseMode(current))}
               >
-                Reset
-              </button>
+                <svg viewBox="0 0 16 16" aria-hidden="true" className="tool-icon">
+                  <path d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828zm.66 11.34L3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293z" />
+                </svg>
+              </IconButton>
+
+              <IconButton
+                className="keypad-reset"
+                label="Reset"
+                disabled={state.isPaused}
+                onClick={() => setState((current) => resetPuzzle(current))}
+              >
+                <svg viewBox="0 0 16 16" aria-hidden="true" className="tool-icon">
+                  <path d="M9.302 1.256a1.5 1.5 0 0 0-2.604 0l-1.704 2.98a.5.5 0 0 0 .869.497l1.703-2.981a.5.5 0 0 1 .868 0l2.54 4.444-1.256-.337a.5.5 0 1 0-.26.966l2.415.647a.5.5 0 0 0 .613-.353l.647-2.415a.5.5 0 1 0-.966-.259l-.333 1.242zM2.973 7.773l-1.255.337a.5.5 0 1 1-.26-.966l2.416-.647a.5.5 0 0 1 .612.353l.647 2.415a.5.5 0 0 1-.966.259l-.333-1.242-2.545 4.454a.5.5 0 0 0 .434.748H5a.5.5 0 0 1 0 1H1.723A1.5 1.5 0 0 1 .421 12.24zm10.89 1.463a.5.5 0 1 0-.868.496l1.716 3.004a.5.5 0 0 1-.434.748h-5.57l.647-.646a.5.5 0 1 0-.708-.707l-1.5 1.5a.5.5 0 0 0 0 .707l1.5 1.5a.5.5 0 1 0 .708-.707l-.647-.647h5.57a1.5 1.5 0 0 0 1.302-2.244z" />
+                </svg>
+              </IconButton>
             </div>
 
             <div className="toolbar toolbar-below">
-              <button type="button" onClick={() => setState((current) => toggleNoteMode(current))} className={state.noteMode ? "active" : ""}>
-                Notes {state.noteMode ? "On" : "Off"}
-              </button>
               <div className="toolbar-timer">{formatTime(state.elapsedSeconds)}</div>
             </div>
           </div>
@@ -359,3 +409,4 @@ export function GameApp() {
     </main>
   );
 }
+

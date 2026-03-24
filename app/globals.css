@@ -101,6 +101,7 @@ h1 {
 
 .toolbar-below {
   margin-top: 2px;
+  justify-content: flex-end;
 }
 
 .toolbar button,
@@ -836,15 +837,7 @@ h1 {
   min-height: 68px;
 }
 
-.eraser-icon {
-  width: 28px;
-  height: 28px;
-  stroke: currentColor;
-  stroke-width: 1.75;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
+
 
 .play-controls {
   display: grid;
@@ -870,10 +863,7 @@ h1 {
     min-height: 56px;
   }
 
-  .eraser-icon {
-    width: 24px;
-    height: 24px;
-  }
+  
 
   .play-controls {
     gap: 8px;
@@ -886,7 +876,7 @@ h1 {
 
 
 .keypad-inline {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
 .digit-1 { order: 1; }
@@ -895,23 +885,35 @@ h1 {
 .digit-4 { order: 4; }
 .digit-5 { order: 5; }
 .keypad-pause { order: 6; }
-.digit-6 { order: 7; }
-.digit-7 { order: 8; }
-.digit-8 { order: 9; }
-.digit-9 { order: 10; }
-.keypad-erase { order: 11; }
-.keypad-reset { order: 12; }
+.keypad-config { order: 7; }
+.digit-6 { order: 8; }
+.digit-7 { order: 9; }
+.digit-8 { order: 10; }
+.digit-9 { order: 11; }
+.keypad-notes { order: 12; }
+.keypad-erase { order: 13; }
+.keypad-reset { order: 14; }
 
 .keypad-pause,
+.keypad-config,
+.keypad-notes,
 .keypad-erase,
 .keypad-reset {
   min-height: 68px;
 }
 
-.pause-icon {
+.tool-icon {
   width: 22px;
   height: 22px;
   fill: currentColor;
+}
+
+.tool-icon-stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .play-controls {
@@ -924,13 +926,39 @@ h1 {
   }
 
   .keypad-pause,
+  .keypad-config,
+  .keypad-notes,
   .keypad-erase,
   .keypad-reset {
     min-height: 56px;
   }
 
-  .pause-icon {
+  .tool-icon {
     width: 18px;
     height: 18px;
   }
 }
+
+
+/* keypad icon row overrides */
+.keypad-inline {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.keypad-inline .digit-button,
+.keypad-inline .keypad-config,
+.keypad-inline .keypad-pause,
+.keypad-inline .keypad-notes,
+.keypad-inline .keypad-erase,
+.keypad-inline .keypad-reset {
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .keypad-inline {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+}
+
+
+/* keypad position overrides */`r`n.keypad-inline .digit-1 { order: 1; }`r`n.keypad-inline .digit-2 { order: 2; }`r`n.keypad-inline .digit-3 { order: 3; }`r`n.keypad-inline .digit-4 { order: 4; }`r`n.keypad-inline .digit-5 { order: 5; }`r`n.keypad-inline .keypad-erase { order: 6; }`r`n.keypad-inline .keypad-pause { order: 7; }`r`n.keypad-inline .digit-6 { order: 8; }`r`n.keypad-inline .digit-7 { order: 9; }`r`n.keypad-inline .digit-8 { order: 10; }`r`n.keypad-inline .digit-9 { order: 11; }`r`n.keypad-inline .keypad-notes { order: 12; }`r`n.keypad-inline .keypad-reset { order: 13; }`r`n.keypad-inline .keypad-home { order: 14; }

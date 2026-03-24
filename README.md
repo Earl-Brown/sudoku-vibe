@@ -57,6 +57,12 @@ The repository vendors the Gordon Royle 17-clue source set in [data/gordon-royle
 - `npm run deploy:prepare` to generate the deployment-ready static export
 - `npm test` to regenerate the puzzle catalog and run the test suite
 
+## Convenience scripts
+
+- `start-server.bat` starts `npm run dev` and writes the process id to `.dev-server.pid`
+- `stop-server.bat` reads `.dev-server.pid` and stops that dev-server process
+- `full-rebuild.bat` stops the dev server, clears `.next` and `out`, and runs a clean `npm run build`
+
 ## Architecture
 
 - `app/` contains the Next.js UI shell and global styles
@@ -72,4 +78,3 @@ The app is client-side and offline-first. It does not require a backend, account
 ## Dev Notes
 
 - Ongoing project handoff notes and issue-resolution history live in [docs/hand-off.md](D:/temp/Codex/Killer Sudoku/docs/hand-off.md)
-
