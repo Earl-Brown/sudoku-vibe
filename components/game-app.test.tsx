@@ -121,7 +121,7 @@ describe("GameApp", () => {
     expect(unrelatedCell.className).not.toContain("peer");
   });
 
-  it("keeps selected-cell highlighting stable when a digit is also selected", async () => {
+  it("keeps only the selected cell highlighted when a cell is active", async () => {
     const user = userEvent.setup();
     renderApp("low");
 
@@ -139,7 +139,7 @@ describe("GameApp", () => {
     await user.click(selectedGivenCell);
 
     expect(selectedGivenCell.className).toContain("selected");
-    expect(selectedRowPeer.className).toContain("peer");
+    expect(selectedRowPeer.className).not.toContain("peer");
   });
 
   it("toggles pause state and blanks the board", async () => {
@@ -207,5 +207,6 @@ describe("GameApp", () => {
     expect(within(firstCell).queryByText("5", { selector: ".cell-value" })).toBeNull();
   });
 });
+
 
 

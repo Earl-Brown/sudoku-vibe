@@ -181,14 +181,6 @@ function buildCellClassNames(
 
   if (selected?.row === row && selected?.col === col) {
     classes.push("selected");
-  } else if (selected && (selected.row === row || selected.col === col)) {
-    classes.push("peer");
-  } else if (
-    selected &&
-    Math.floor(selected.row / 3) === Math.floor(row / 3) &&
-    Math.floor(selected.col / 3) === Math.floor(col / 3)
-  ) {
-    classes.push("peer");
   } else if (isSelectedDigitCell) {
     classes.push("peer");
   }
@@ -409,6 +401,7 @@ export function GameApp() {
     </main>
   );
 }
+
 
 
 
