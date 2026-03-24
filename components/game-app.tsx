@@ -16,6 +16,7 @@ import {
   switchPlayDifficulty,
   switchPuzzle,
   tick,
+  toggleEraseMode,
   toggleNoteMode,
   togglePause,
   undo
@@ -340,8 +341,8 @@ export function GameApp() {
                 )}
               </button>
               <button
-                className="keypad-erase"
-                onClick={() => setState((current) => clearCell(current))}
+                className={`keypad-erase ${state.eraseMode ? "active" : ""}`.trim()}
+                onClick={() => setState((current) => toggleEraseMode(current))}
                 disabled={state.isPaused}
                 aria-label="Erase"
                 title="Erase"
@@ -408,5 +409,6 @@ export function GameApp() {
     </main>
   );
 }
+
 
 

@@ -44,6 +44,7 @@ export function createInitialState(
     notes,
     selectedCell: null,
     selectedDigit: null,
+    eraseMode: false,
     noteMode: false,
     isPaused: false,
     elapsedSeconds: 0,
@@ -66,6 +67,7 @@ export function createStateFromPersisted(payload: PersistedGameState): GameState
     notes,
     selectedCell: null,
     selectedDigit: null,
+    eraseMode: false,
     noteMode: false,
     isPaused: payload.isPaused ?? false,
     elapsedSeconds: payload.elapsedSeconds,
@@ -143,6 +145,20 @@ export function selectDigit(state: GameState, digit: number | null): GameState {
   return {
     ...state,
     selectedDigit: nextDigit,
+    eraseMode: false,
+    selectedCell: null
+  };
+}
+
+export function toggleEraseMode(state: GameState): GameState {
+  if (state.isPaused) {
+    return state;
+  }
+
+  return {
+    ...state,
+    selectedDigit: null,
+    eraseMode: !state.eraseMode,
     selectedCell: null
   };
 }
@@ -164,7 +180,7 @@ export function selectCell(state: GameState, cell: Position | null): GameState {
     selectedCell: cell
   };
 
-  if (state.selectedDigit === null || state.validation.isSolved) {
+  if ((state.selectedDigit === null && !state.eraseMode) || state.validation.isSolved) {
     return nextState;
   }
 
@@ -172,7 +188,11 @@ export function selectCell(state: GameState, cell: Position | null): GameState {
     return nextState;
   }
 
-  return applyDigitToCell(nextState, cell.row, cell.col, state.selectedDigit);
+  if (state.eraseMode) {
+    return clearCellAtPosition(nextState, cell.row, cell.col);
+  }
+
+  return applyDigitToCell(nextState, cell.row, cell.col, state.selectedDigit!);
 }
 
 export function toggleNoteMode(state: GameState): GameState {
@@ -275,7 +295,9 @@ function applyDigitToCell(state: GameState, row: number, col: number, digit: num
     }
 
     if (draft.values[row][col] === digit) {
-      return false;
+      draft.values[row][col] = null;
+      draft.notes[row][col].clear();
+      return true;
     }
 
     draft.values[row][col] = digit;
@@ -288,12 +310,11 @@ export function enterDigit(state: GameState, digit: number): GameState {
   return selectDigit(state, digit);
 }
 
-export function clearCell(state: GameState): GameState {
-  if (!state.selectedCell || state.validation.isSolved || state.isPaused) {
+function clearCellAtPosition(state: GameState, row: number, col: number): GameState {
+  if (state.validation.isSolved || state.isPaused) {
     return state;
   }
 
-  const { row, col } = state.selectedCell;
   if (isGivenCell(state.puzzleId, state.playDifficulty, row, col)) {
     return state;
   }
@@ -312,6 +333,14 @@ export function clearCell(state: GameState): GameState {
     draft.notes[row][col].clear();
     return true;
   });
+}
+
+export function clearCell(state: GameState): GameState {
+  if (!state.selectedCell) {
+    return state;
+  }
+
+  return clearCellAtPosition(state, state.selectedCell.row, state.selectedCell.col);
 }
 
 export function undo(state: GameState): GameState {
@@ -361,4 +390,6 @@ export function switchPuzzle(state: GameState, puzzleId: string): GameState {
 export function switchPlayDifficulty(state: GameState, playDifficulty: PlayDifficulty): GameState {
   return createInitialState(state.puzzleId, playDifficulty);
 }
+
+
 

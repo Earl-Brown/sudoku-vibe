@@ -75,6 +75,29 @@ describe("GameApp", () => {
     expect(firstCell).toHaveTextContent("4");
   });
 
+
+  it("clears matching values and replaces different non-given values with the selected digit", async () => {
+    const user = userEvent.setup();
+    renderApp("killer");
+
+    const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
+    const firstCell = within(board).getByRole("button", { name: "Row 1 Column 1" });
+    const secondCell = within(board).getByRole("button", { name: "Row 1 Column 2" });
+
+    await user.click(screen.getByRole("button", { name: "5" }));
+    await user.click(firstCell);
+    expect(firstCell).toHaveTextContent("5");
+
+    await user.click(firstCell);
+    expect(within(firstCell).queryByText("5", { selector: ".cell-value" })).toBeNull();
+
+    await user.click(secondCell);
+    expect(within(secondCell).getByText("5", { selector: ".cell-value" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "7" }));
+    await user.click(secondCell);
+    expect(within(secondCell).getByText("7", { selector: ".cell-value" })).toBeInTheDocument();
+  });
   it("highlights only placed copies of the selected digit when no cell is active", async () => {
     const user = userEvent.setup();
     renderApp("low");
@@ -158,7 +181,7 @@ describe("GameApp", () => {
 
     expect(screen.getByRole("button", { name: "Play" })).toBeInTheDocument();
     expect(screen.getByText("Paused")).toBeInTheDocument();
-    expect(firstCell).not.toHaveTextContent("5");
+    expect(within(firstCell).queryByText("5", { selector: ".cell-value" })).toBeNull();
     expect(firstCell).toBeDisabled();
 
     await user.click(screen.getByRole("button", { name: "Play" }));
@@ -189,4 +212,25 @@ describe("GameApp", () => {
     expect(completedButton).toBeDisabled();
     expect(completedButton).toHaveTextContent("Done");
   });
+
+  it("latches erase without clearing until a cell is clicked", async () => {
+    const user = userEvent.setup();
+    renderApp("killer");
+
+    await user.click(screen.getByRole("button", { name: "5" }));
+
+    const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
+    const firstCell = within(board).getByRole("button", { name: "Row 1 Column 1" });
+    await user.click(firstCell);
+    expect(firstCell).toHaveTextContent("5");
+
+    await user.click(screen.getByRole("button", { name: "Erase" }));
+    expect(firstCell).toHaveTextContent("5");
+
+    await user.click(firstCell);
+    expect(within(firstCell).queryByText("5", { selector: ".cell-value" })).toBeNull();
+  });
 });
+
+
+

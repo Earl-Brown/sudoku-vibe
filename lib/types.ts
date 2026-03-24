@@ -50,6 +50,7 @@ export type GameState = {
   notes: NotesGrid;
   selectedCell: Position | null;
   selectedDigit: number | null;
+  eraseMode: boolean;
   noteMode: boolean;
   isPaused: boolean;
   elapsedSeconds: number;
@@ -66,4 +67,3 @@ export type PersistedGameState = {
   isPaused: boolean;
   elapsedSeconds: number;
 };
-
