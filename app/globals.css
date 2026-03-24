@@ -788,3 +788,27 @@ h1 {
     min-height: 0;
   }
 }
+
+.keypad-inline {
+  margin-top: 2px;
+}
+
+.keypad-inline .wide {
+  min-height: 56px;
+}
+
+@media (max-width: 720px) {
+  .keypad-inline {
+    gap: 8px;
+  }
+
+  .keypad-inline button {
+    min-height: 56px;
+  }
+}
+
+
+
+.keypad-action {
+  min-height: 56px;
+}

@@ -303,6 +303,35 @@ export function GameApp() {
             {state.isPaused ? <div className="pause-overlay">Paused</div> : null}
           </div>
 
+          <div className="keypad keypad-inline">
+            {range(9).map((index) => {
+              const digit = index + 1;
+              const completed = completedDigits.has(digit);
+
+              return (
+                <button
+                  key={index}
+                  className={`${state.selectedDigit === digit ? "active" : ""} ${completed ? "completed" : ""}`.trim()}
+                  onClick={() => setState((current) => enterDigit(current, digit))}
+                  disabled={completed || state.isPaused}
+                  aria-label={completed ? `${digit} complete` : `${digit}`}
+                >
+                  <span className="keypad-digit">{digit}</span>
+                  {completed ? <span className="keypad-status">Done</span> : null}
+                </button>
+              );
+            })}
+            <button className="keypad-action" onClick={() => setState((current) => undo(current))} disabled={state.history.length === 0 || state.isPaused}>
+              Undo
+            </button>
+            <button className="keypad-action" onClick={() => setState((current) => redo(current))} disabled={state.future.length === 0 || state.isPaused}>
+              Redo
+            </button>
+            <button className="keypad-action" onClick={() => setState((current) => clearCell(current))} disabled={state.isPaused}>
+              Erase
+            </button>
+
+          </div>
           <div className="toolbar toolbar-below">
             <label className="select-wrap">
               <span>Puzzle</span>
@@ -337,13 +366,6 @@ export function GameApp() {
             <button onClick={() => setState((current) => toggleNoteMode(current))} className={state.noteMode ? "active" : ""}>
               Notes {state.noteMode ? "On" : "Off"}
             </button>
-            <button onClick={() => setState((current) => undo(current))} disabled={state.history.length === 0 || state.isPaused}>
-              Undo
-            </button>
-            <button onClick={() => setState((current) => redo(current))} disabled={state.future.length === 0 || state.isPaused}>
-              Redo
-            </button>
-            <button onClick={() => setState((current) => clearCell(current))} disabled={state.isPaused}>Erase</button>
             <div className="toolbar-timer">{formatTime(state.elapsedSeconds)}</div>
           </div>
         </div>
@@ -357,28 +379,6 @@ export function GameApp() {
               <button onClick={() => setState((current) => resetPuzzle(current))}>Reset</button>
               <button onClick={() => setState((current) => togglePause(current))}>
                 {state.isPaused ? "Play" : "Pause"}
-              </button>
-            </div>
-            <div className="keypad">
-              {range(9).map((index) => {
-                const digit = index + 1;
-                const completed = completedDigits.has(digit);
-
-                return (
-                  <button
-                    key={index}
-                    className={`${state.selectedDigit === digit ? "active" : ""} ${completed ? "completed" : ""}`.trim()}
-                    onClick={() => setState((current) => enterDigit(current, digit))}
-                    disabled={completed || state.isPaused}
-                    aria-label={completed ? `${digit} complete` : `${digit}`}
-                  >
-                    <span className="keypad-digit">{digit}</span>
-                    {completed ? <span className="keypad-status">Done</span> : null}
-                  </button>
-                );
-              })}
-              <button className="wide" onClick={() => setState((current) => clearCell(current))} disabled={state.isPaused}>
-                Clear cell
               </button>
             </div>
           </div>
@@ -417,6 +417,11 @@ export function GameApp() {
     </main>
   );
 }
+
+
+
+
+
 
 
 
