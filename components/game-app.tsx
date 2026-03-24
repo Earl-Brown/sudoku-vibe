@@ -151,6 +151,98 @@ function getCageLabelMap(puzzleId: string) {
   return map;
 }
 
+type OverlayPath = {
+  cageId: string;
+  d: string;
+};
+
+function pointKey(x: number, y: number) {
+  return `${x},${y}`;
+}
+
+function edgeKey(a: string, b: string) {
+  return a < b ? `${a}|${b}` : `${b}|${a}`;
+}
+
+function parsePoint(point: string) {
+  const [x, y] = point.split(",").map(Number);
+  return { x, y };
+}
+
+function buildCageOverlayPaths(puzzleId: string) {
+  const puzzle = getPuzzleById(puzzleId);
+  const unit = 10;
+
+  return puzzle.cages.flatMap((cage) => {
+    const edges = new Map<string, { a: string; b: string }>();
+
+    cage.cells.forEach((cell) => {
+      const left = cell.col * unit;
+      const top = cell.row * unit;
+      const right = left + unit;
+      const bottom = top + unit;
+      const cellEdges: Array<[string, string]> = [
+        [pointKey(left, top), pointKey(right, top)],
+        [pointKey(right, top), pointKey(right, bottom)],
+        [pointKey(right, bottom), pointKey(left, bottom)],
+        [pointKey(left, bottom), pointKey(left, top)]
+      ];
+
+      cellEdges.forEach(([a, b]) => {
+        const key = edgeKey(a, b);
+        if (edges.has(key)) {
+          edges.delete(key);
+        } else {
+          edges.set(key, { a, b });
+        }
+      });
+    });
+
+    const adjacency = new Map<string, Set<string>>();
+    edges.forEach(({ a, b }) => {
+      if (!adjacency.has(a)) adjacency.set(a, new Set());
+      if (!adjacency.has(b)) adjacency.set(b, new Set());
+      adjacency.get(a)?.add(b);
+      adjacency.get(b)?.add(a);
+    });
+
+    const remaining = new Map(edges);
+    const loops: OverlayPath[] = [];
+
+    while (remaining.size > 0) {
+      const first = remaining.values().next().value as { a: string; b: string };
+      const points = [first.a, first.b];
+      let previous = first.a;
+      let current = first.b;
+      remaining.delete(edgeKey(first.a, first.b));
+
+      while (current !== points[0]) {
+        const options = [...(adjacency.get(current) ?? [])].filter((next) => remaining.has(edgeKey(current, next)));
+        const nextPoint = options.find((next) => next !== previous) ?? options[0];
+
+        if (!nextPoint) {
+          break;
+        }
+
+        remaining.delete(edgeKey(current, nextPoint));
+        points.push(nextPoint);
+        previous = current;
+        current = nextPoint;
+      }
+
+      const d = points
+        .map((point, index) => {
+          const parsed = parsePoint(point);
+          return `${index === 0 ? "M" : "L"}${parsed.x} ${parsed.y}`;
+        })
+        .join(" ") + " Z";
+
+      loops.push({ cageId: cage.id, d });
+    }
+
+    return loops;
+  });
+}
 function getSelectedDigitCells(state: GameState) {
   const cells = new Set<string>();
 
@@ -196,6 +288,7 @@ function buildCellClassNames(
   return classes.join(" ");
 }
 
+
 function IconButton({
   className,
   label,
@@ -231,6 +324,7 @@ export function GameApp() {
   const { ready, state, setState } = useHydratedGameState();
   const cageIdMap = useMemo(() => getCageIdMap(state.puzzleId), [state.puzzleId]);
   const cageLabelMap = useMemo(() => getCageLabelMap(state.puzzleId), [state.puzzleId]);
+  const cageOverlayPaths = useMemo(() => buildCageOverlayPaths(state.puzzleId), [state.puzzleId]);
   const completedDigits = useMemo(() => getCompletedDigits(state), [state]);
   const selectedDigitCells = useMemo(() => getSelectedDigitCells(state), [state]);
 
@@ -247,7 +341,13 @@ export function GameApp() {
       <section className="workspace">
         <div className="board-panel">
           <div className={`board-shell ${state.isPaused ? "paused" : ""}`}>
-            <div className="board" role="grid" aria-label="Killer Sudoku board" aria-hidden={state.isPaused}>
+            <div className="board-wrap">
+              <svg className="cage-overlay" viewBox="0 0 90 90" aria-label="Killer cage overlay" aria-hidden="true">
+                {cageOverlayPaths.map((path) => (
+                  <path key={path.cageId} data-cage-id={path.cageId} className="cage-path" d={path.d} />
+                ))}
+              </svg>
+              <div className="board" role="grid" aria-label="Killer Sudoku board" aria-hidden={state.isPaused}>
               {range(9).flatMap((row) =>
                 range(9).map((col) => {
                   const value = state.values[row][col];
@@ -259,19 +359,11 @@ export function GameApp() {
                   const hasBoxLeft = col % 3 === 0;
                   const hasBoxBottom = row === 8;
                   const hasBoxRight = col === 8;
-                  const hasCageTop = row === 0 || cageIdMap.get(keyForCell(row - 1, col)) !== cageId;
-                  const hasCageBottom = row === 8 || cageIdMap.get(keyForCell(row + 1, col)) !== cageId;
-                  const hasCageLeft = col === 0 || cageIdMap.get(keyForCell(row, col - 1)) !== cageId;
-                  const hasCageRight = col === 8 || cageIdMap.get(keyForCell(row, col + 1)) !== cageId;
                   const borderClasses = [
-                    hasCageTop && !hasBoxTop ? "cage-top" : "",
-                    hasCageBottom && !hasBoxBottom ? "cage-bottom" : "",
-                    hasCageLeft && !hasBoxLeft ? "cage-left" : "",
-                    hasCageRight && !hasBoxRight ? "cage-right" : "",
-                    hasBoxTop ? (hasCageTop ? "box-top-overlap" : "box-top") : "",
-                    hasBoxLeft ? (hasCageLeft ? "box-left-overlap" : "box-left") : "",
-                    hasBoxBottom ? (hasCageBottom ? "box-bottom-overlap" : "box-bottom") : "",
-                    hasBoxRight ? (hasCageRight ? "box-right-overlap" : "box-right") : ""
+                    hasBoxTop ? "box-top" : "",
+                    hasBoxLeft ? "box-left" : "",
+                    hasBoxBottom ? "box-bottom" : "",
+                    hasBoxRight ? "box-right" : ""
                   ]
                     .filter(Boolean)
                     .join(" ");
@@ -302,6 +394,7 @@ export function GameApp() {
                   );
                 })
               )}
+              </div>
             </div>
             {state.isPaused ? <div className="pause-overlay">Paused</div> : null}
           </div>
@@ -401,6 +494,10 @@ export function GameApp() {
     </main>
   );
 }
+
+
+
+
 
 
 

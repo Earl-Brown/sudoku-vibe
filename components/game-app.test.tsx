@@ -142,6 +142,19 @@ describe("GameApp", () => {
     expect(selectedRowPeer.className).not.toContain("peer");
   });
 
+  it("renders cage overlay paths for the current puzzle", async () => {
+    renderApp("killer");
+
+    const overlay = await screen.findByLabelText("Killer cage overlay");
+    const paths = overlay.querySelectorAll(".cage-path");
+    const targetCage = puzzles[0].cages.find((cage) => cage.cells.some((cell) => cell.row === 0 && cell.col === 1));
+
+    expect(paths.length).toBeGreaterThan(0);
+    expect(paths.length).toBe(puzzles[0].cages.length);
+    expect(targetCage).toBeDefined();
+    expect(overlay.querySelector(`[data-cage-id="${targetCage?.id}"]`)).not.toBeNull();
+  });
+
   it("toggles pause state and blanks the board", async () => {
     const user = userEvent.setup();
     renderApp("killer");
@@ -207,6 +220,5 @@ describe("GameApp", () => {
     expect(within(firstCell).queryByText("5", { selector: ".cell-value" })).toBeNull();
   });
 });
-
 
 
