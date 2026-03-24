@@ -250,6 +250,11 @@ h1 {
   position: absolute;
   top: 4px;
   left: 5px;
+  z-index: 3;
+  display: inline-block;
+  padding: 0 3px 1px 0;
+  background: #fffdfa;
+  border-radius: 6px;
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--muted);
@@ -990,6 +995,7 @@ h1 {
 .keypad-inline .keypad-notes { order: 12; }
 .keypad-inline .keypad-reset { order: 13; }
 .keypad-inline .keypad-home { order: 14; }
+
 
 
 

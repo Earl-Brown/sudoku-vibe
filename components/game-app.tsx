@@ -203,6 +203,7 @@ function getInwardNormal(
 
 function buildInsetPath(loop: Array<{ x: number; y: number }>, inset: number) {
   const compactLoop = compressLoop(loop);
+  const outerInset = 0.8;
   const counterClockwise = signedArea(compactLoop) > 0;
 
   const insetPoints = compactLoop.map((point, index) => {
@@ -211,10 +212,15 @@ function buildInsetPath(loop: Array<{ x: number; y: number }>, inset: number) {
     const previousNormal = getInwardNormal(previous, point, counterClockwise);
     const nextNormal = getInwardNormal(point, next, counterClockwise);
 
-    return {
-      x: point.x + (previousNormal.x + nextNormal.x) * inset,
-      y: point.y + (previousNormal.y + nextNormal.y) * inset
-    };
+    let x = point.x + (previousNormal.x + nextNormal.x) * inset;
+    let y = point.y + (previousNormal.y + nextNormal.y) * inset;
+
+    if (point.x === 0) x += outerInset;
+    if (point.x === 90) x -= outerInset;
+    if (point.y === 0) y += outerInset;
+    if (point.y === 90) y -= outerInset;
+
+    return { x, y };
   });
 
   return `${insetPoints.map((point, index) => `${index === 0 ? "M" : "L"}${point.x} ${point.y}`).join(" ")} Z`;
@@ -224,6 +230,7 @@ function buildCageOverlayPaths(puzzleId: string) {
   const puzzle = getPuzzleById(puzzleId);
   const unit = 10;
   const inset = 1;
+  const outerInset = 0.8;
 
   return puzzle.cages.flatMap((cage): OverlayPath[] => {
     const edges = new Map<string, { a: string; b: string }>();
@@ -544,6 +551,7 @@ export function GameApp() {
     </main>
   );
 }
+
 
 
 
