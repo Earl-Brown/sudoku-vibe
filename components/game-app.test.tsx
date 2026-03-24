@@ -1,12 +1,19 @@
 import React from "react";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GameApp } from "@/components/game-app";
+import { createInitialState, savePersistedState, STORAGE_KEY } from "@/lib/game-state";
 import { getGivenPositions, puzzles } from "@/lib/puzzles";
+import { PlayDifficulty } from "@/lib/types";
 
 function cellName(row: number, col: number) {
   return `Row ${row + 1} Column ${col + 1}`;
+}
+
+function renderApp(playDifficulty: PlayDifficulty = "medium") {
+  savePersistedState(createInitialState(puzzles[0].id, playDifficulty));
+  return render(<GameApp />);
 }
 
 function findGivenDigitWithMultipleVisibleCells() {
@@ -41,9 +48,8 @@ describe("GameApp", () => {
 
   it("loads the board and places a value after choosing a number in killer mode", async () => {
     const user = userEvent.setup();
-    render(<GameApp />);
+    renderApp("killer");
 
-    await user.selectOptions(screen.getByLabelText("Difficulty selector"), "killer");
     await user.click(screen.getByRole("button", { name: "5" }));
 
     const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
@@ -55,9 +61,8 @@ describe("GameApp", () => {
 
   it("changing the selected number does not rewrite the selected cell", async () => {
     const user = userEvent.setup();
-    render(<GameApp />);
+    renderApp("killer");
 
-    await user.selectOptions(screen.getByLabelText("Difficulty selector"), "killer");
     await user.click(screen.getByRole("button", { name: "4" }));
 
     const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
@@ -72,7 +77,7 @@ describe("GameApp", () => {
 
   it("highlights only placed copies of the selected digit when no cell is active", async () => {
     const user = userEvent.setup();
-    render(<GameApp />);
+    renderApp("low");
 
     const { digit, cells } = findGivenDigitWithMultipleVisibleCells();
     const [firstCellInfo, secondCellInfo] = cells;
@@ -81,7 +86,6 @@ describe("GameApp", () => {
       .flatMap((row, rowIndex) => row.map((_, colIndex) => ({ row: rowIndex, col: colIndex })))
       .find((cell) => !visibleCellKeys.has(`${cell.row}-${cell.col}`))!;
 
-    await user.selectOptions(screen.getByLabelText("Difficulty selector"), "low");
     await user.click(screen.getByRole("button", { name: String(digit) }));
 
     const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
@@ -96,14 +100,13 @@ describe("GameApp", () => {
 
   it("keeps selected-cell highlighting stable when a digit is also selected", async () => {
     const user = userEvent.setup();
-    render(<GameApp />);
+    renderApp("low");
 
     const puzzle = puzzles[0];
     const givenCell = getGivenPositions(puzzle.id, "low")[0];
     const digit = puzzle.solution[givenCell.row][givenCell.col];
     const peerCell = givenCell.col < 8 ? { row: givenCell.row, col: givenCell.col + 1 } : { row: givenCell.row, col: givenCell.col - 1 };
 
-    await user.selectOptions(screen.getByLabelText("Difficulty selector"), "low");
     await user.click(screen.getByRole("button", { name: String(digit) }));
 
     const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
@@ -120,9 +123,8 @@ describe("GameApp", () => {
     const user = userEvent.setup();
     const randomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
 
-    render(<GameApp />);
+    renderApp("killer");
 
-    await user.selectOptions(screen.getByLabelText("Difficulty selector"), "killer");
     await user.click(screen.getByRole("button", { name: "5" }));
 
     const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
@@ -132,16 +134,19 @@ describe("GameApp", () => {
 
     await user.click(screen.getByRole("button", { name: "New game" }));
 
-    expect(screen.getByLabelText("Puzzle selector")).toHaveValue(puzzles[1].id);
+    await waitFor(() => {
+      const persisted = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}");
+      expect(persisted.puzzleId).toBe(puzzles[1].id);
+    });
     expect(within(board).getByRole("button", { name: "Row 1 Column 1" })).not.toHaveTextContent("5");
 
     randomSpy.mockRestore();
   });
+
   it("toggles pause state and blanks the board", async () => {
     const user = userEvent.setup();
-    render(<GameApp />);
+    renderApp("killer");
 
-    await user.selectOptions(screen.getByLabelText("Difficulty selector"), "killer");
     await user.click(screen.getByRole("button", { name: "5" }));
 
     const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
@@ -164,7 +169,7 @@ describe("GameApp", () => {
 
   it("disables a completed number only after all correct placements are filled", async () => {
     const user = userEvent.setup();
-    render(<GameApp />);
+    renderApp("killer");
 
     const puzzle = puzzles[0];
     const digit = 1;
@@ -172,7 +177,6 @@ describe("GameApp", () => {
       row.flatMap((value, colIndex) => (value === digit ? [{ row: rowIndex, col: colIndex }] : []))
     );
 
-    await user.selectOptions(screen.getByLabelText("Difficulty selector"), "killer");
     await user.click(screen.getByRole("button", { name: String(digit) }));
 
     const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
@@ -186,5 +190,3 @@ describe("GameApp", () => {
     expect(completedButton).toHaveTextContent("Done");
   });
 });
-
-

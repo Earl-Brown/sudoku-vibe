@@ -342,36 +342,6 @@ export function GameApp() {
             </button>
           </div>
           <div className="toolbar toolbar-below">
-            <label className="select-wrap">
-              <span>Puzzle</span>
-              <select
-                aria-label="Puzzle selector"
-                value={state.puzzleId}
-                onChange={(event) => setState((current) => switchPuzzle(current, event.target.value))}
-              >
-                {puzzles.map((entry) => (
-                  <option key={entry.id} value={entry.id}>
-                    {entry.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="select-wrap">
-              <span>Difficulty</span>
-              <select
-                aria-label="Difficulty selector"
-                value={state.playDifficulty}
-                onChange={(event) =>
-                  setState((current) => switchPlayDifficulty(current, event.target.value as PlayDifficulty))
-                }
-              >
-                {Object.entries(playDifficultyLabels).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </label>
             <button onClick={() => setState((current) => toggleNoteMode(current))} className={state.noteMode ? "active" : ""}>
               Notes {state.noteMode ? "On" : "Off"}
             </button>
@@ -384,10 +354,12 @@ export function GameApp() {
           <details className="panel help-panel">
             <summary>Instructions</summary>
             <div className="help-panel-body">
+              <div className="setup-summary">
+                <p><strong>Puzzle:</strong> {puzzle.name}</p>
+                <p><strong>Difficulty:</strong> {playDifficultyLabels[state.playDifficulty]}</p>
+                <p>{playDifficultyLabels[state.playDifficulty]} starts with {givenCount} pre-filled number{givenCount === 1 ? "" : "s"}.</p>
+              </div>
               <p>{puzzle.name} uses a {puzzle.complexity.toLowerCase()} cage layout.</p>
-              <p>
-                {playDifficultyLabels[state.playDifficulty]} starts with {givenCount} pre-filled number{givenCount === 1 ? "" : "s"}.
-              </p>
               <ul className="tips">
                 <li>Each row, column, and 3x3 box must contain 1 through 9 exactly once.</li>
                 <li>Cages must add up to their corner total and cannot repeat a digit.</li>
@@ -415,6 +387,7 @@ export function GameApp() {
     </main>
   );
 }
+
 
 
 

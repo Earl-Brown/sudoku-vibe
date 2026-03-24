@@ -812,3 +812,13 @@ h1 {
 .keypad-action {
   min-height: 56px;
 }
+
+.setup-summary {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.setup-summary p {
+  margin: 0;
+}
