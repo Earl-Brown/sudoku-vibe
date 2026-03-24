@@ -169,11 +169,63 @@ function parsePoint(point: string) {
   return { x, y };
 }
 
+function signedArea(points: Array<{ x: number; y: number }>) {
+  let area = 0;
+
+  points.forEach((point, index) => {
+    const next = points[(index + 1) % points.length];
+    area += point.x * next.y - next.x * point.y;
+  });
+
+  return area / 2;
+}
+
+function compressLoop(points: Array<{ x: number; y: number }>) {
+  return points.filter((point, index) => {
+    const previous = points[(index - 1 + points.length) % points.length];
+    const next = points[(index + 1) % points.length];
+    const sameVertical = previous.x === point.x && point.x === next.x;
+    const sameHorizontal = previous.y === point.y && point.y === next.y;
+    return !sameVertical && !sameHorizontal;
+  });
+}
+
+function getInwardNormal(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  counterClockwise: boolean
+) {
+  const dx = Math.sign(to.x - from.x);
+  const dy = Math.sign(to.y - from.y);
+
+  return counterClockwise ? { x: -dy, y: dx } : { x: dy, y: -dx };
+}
+
+function buildInsetPath(loop: Array<{ x: number; y: number }>, inset: number) {
+  const compactLoop = compressLoop(loop);
+  const counterClockwise = signedArea(compactLoop) > 0;
+
+  const insetPoints = compactLoop.map((point, index) => {
+    const previous = compactLoop[(index - 1 + compactLoop.length) % compactLoop.length];
+    const next = compactLoop[(index + 1) % compactLoop.length];
+    const previousNormal = getInwardNormal(previous, point, counterClockwise);
+    const nextNormal = getInwardNormal(point, next, counterClockwise);
+
+    return {
+      x: point.x + (previousNormal.x + nextNormal.x) * inset,
+      y: point.y + (previousNormal.y + nextNormal.y) * inset
+    };
+  });
+
+  return `${insetPoints.map((point, index) => `${index === 0 ? "M" : "L"}${point.x} ${point.y}`).join(" ")} Z`;
+}
+
 function buildCageOverlayPaths(puzzleId: string) {
   const puzzle = getPuzzleById(puzzleId);
   const unit = 10;
+  const inset = 1;
 
-  return puzzle.cages.flatMap((cage) => {
+  return puzzle.cages.flatMap((cage): OverlayPath[] => {
     const edges = new Map<string, { a: string; b: string }>();
 
     cage.cells.forEach((cell) => {
@@ -211,12 +263,12 @@ function buildCageOverlayPaths(puzzleId: string) {
 
     while (remaining.size > 0) {
       const first = remaining.values().next().value as { a: string; b: string };
-      const points = [first.a, first.b];
+      const points = [parsePoint(first.a), parsePoint(first.b)];
       let previous = first.a;
       let current = first.b;
       remaining.delete(edgeKey(first.a, first.b));
 
-      while (current !== points[0]) {
+      while (current !== first.a) {
         const options = [...(adjacency.get(current) ?? [])].filter((next) => remaining.has(edgeKey(current, next)));
         const nextPoint = options.find((next) => next !== previous) ?? options[0];
 
@@ -225,24 +277,22 @@ function buildCageOverlayPaths(puzzleId: string) {
         }
 
         remaining.delete(edgeKey(current, nextPoint));
-        points.push(nextPoint);
+        points.push(parsePoint(nextPoint));
         previous = current;
         current = nextPoint;
       }
 
-      const d = points
-        .map((point, index) => {
-          const parsed = parsePoint(point);
-          return `${index === 0 ? "M" : "L"}${parsed.x} ${parsed.y}`;
-        })
-        .join(" ") + " Z";
-
-      loops.push({ cageId: cage.id, d });
+      const loop = points.at(-1)?.x === points[0].x && points.at(-1)?.y === points[0].y ? points.slice(0, -1) : points;
+      loops.push({
+        cageId: cage.id,
+        d: buildInsetPath(loop, inset)
+      });
     }
 
     return loops;
   });
 }
+
 function getSelectedDigitCells(state: GameState) {
   const cells = new Set<string>();
 
@@ -494,6 +544,12 @@ export function GameApp() {
     </main>
   );
 }
+
+
+
+
+
+
 
 
 

@@ -193,9 +193,6 @@ h1 {
   stroke-linecap: butt;
   stroke-linejoin: miter;
   vector-effect: non-scaling-stroke;
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: scale(0.88);
 }
 
 .cell {
@@ -993,6 +990,9 @@ h1 {
 .keypad-inline .keypad-notes { order: 12; }
 .keypad-inline .keypad-reset { order: 13; }
 .keypad-inline .keypad-home { order: 14; }
+
+
+
 
 
 
