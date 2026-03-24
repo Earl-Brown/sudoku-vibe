@@ -168,9 +168,31 @@ h1 {
 }
 
 .cell {
+  --cage-inset: 5px;
+  --cage-thickness: 1px;
+  --cage-top-line: none;
+  --cage-bottom-line: none;
+  --cage-left-line: none;
+  --cage-right-line: none;
   position: relative;
   border: 1px solid rgba(84, 63, 38, 0.16);
-  background: transparent;
+  background-color: transparent;
+  background-image:
+    var(--cage-top-line),
+    var(--cage-bottom-line),
+    var(--cage-left-line),
+    var(--cage-right-line);
+  background-size:
+    calc(100% - (var(--cage-inset) * 2)) var(--cage-thickness),
+    calc(100% - (var(--cage-inset) * 2)) var(--cage-thickness),
+    var(--cage-thickness) calc(100% - (var(--cage-inset) * 2)),
+    var(--cage-thickness) calc(100% - (var(--cage-inset) * 2));
+  background-position:
+    var(--cage-inset) top,
+    var(--cage-inset) bottom,
+    left top var(--cage-inset),
+    right top var(--cage-inset);
+  background-repeat: no-repeat;
   min-height: 70px;
   padding: 4px;
   cursor: pointer;
@@ -228,19 +250,19 @@ h1 {
 }
 
 .cage-top {
-  border-top: 2px dashed #111111;
+  --cage-top-line: repeating-linear-gradient(to right, #111111 0 3px, transparent 3px 6px);
 }
 
 .cage-bottom {
-  border-bottom: 2px dashed #111111;
+  --cage-bottom-line: repeating-linear-gradient(to right, #111111 0 3px, transparent 3px 6px);
 }
 
 .cage-left {
-  border-left: 2px dashed #111111;
+  --cage-left-line: repeating-linear-gradient(to bottom, #111111 0 3px, transparent 3px 6px);
 }
 
 .cage-right {
-  border-right: 2px dashed #111111;
+  --cage-right-line: repeating-linear-gradient(to bottom, #111111 0 3px, transparent 3px 6px);
 }
 
 .cage-complete {
@@ -976,5 +998,7 @@ h1 {
 .keypad-inline .keypad-notes { order: 12; }
 .keypad-inline .keypad-reset { order: 13; }
 .keypad-inline .keypad-home { order: 14; }
+
+
 
 
