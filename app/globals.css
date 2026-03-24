@@ -822,3 +822,115 @@ h1 {
 .setup-summary p {
   margin: 0;
 }
+
+.keypad-block {
+  display: grid;
+  gap: 10px;
+}
+
+.keypad-inline {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.keypad-erase {
+  min-height: 68px;
+}
+
+.eraser-icon {
+  width: 28px;
+  height: 28px;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.play-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.play-controls .keypad-action {
+  min-height: 56px;
+}
+
+@media (max-width: 720px) {
+  .keypad-block {
+    gap: 8px;
+  }
+
+  .keypad-inline {
+    gap: 8px;
+  }
+
+  .keypad-inline button,
+  .keypad-erase {
+    min-height: 56px;
+  }
+
+  .eraser-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .play-controls {
+    gap: 8px;
+  }
+}
+
+.play-controls {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+
+.keypad-inline {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.digit-1 { order: 1; }
+.digit-2 { order: 2; }
+.digit-3 { order: 3; }
+.digit-4 { order: 4; }
+.digit-5 { order: 5; }
+.keypad-pause { order: 6; }
+.digit-6 { order: 7; }
+.digit-7 { order: 8; }
+.digit-8 { order: 9; }
+.digit-9 { order: 10; }
+.keypad-erase { order: 11; }
+.keypad-reset { order: 12; }
+
+.keypad-pause,
+.keypad-erase,
+.keypad-reset {
+  min-height: 68px;
+}
+
+.pause-icon {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.play-controls {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 720px) {
+  .keypad-inline {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .keypad-pause,
+  .keypad-erase,
+  .keypad-reset {
+    min-height: 56px;
+  }
+
+  .pause-icon {
+    width: 18px;
+    height: 18px;
+  }
+}

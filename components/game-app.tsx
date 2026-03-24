@@ -303,44 +303,66 @@ export function GameApp() {
             {state.isPaused ? <div className="pause-overlay">Paused</div> : null}
           </div>
 
-          <div className="keypad keypad-inline">
-            {range(9).map((index) => {
-              const digit = index + 1;
-              const completed = completedDigits.has(digit);
+          <div className="keypad-block">
+            <div className="keypad keypad-inline">
+              {range(9).map((index) => {
+                const digit = index + 1;
+                const completed = completedDigits.has(digit);
 
-              return (
-                <button
-                  key={index}
-                  className={`${state.selectedDigit === digit ? "active" : ""} ${completed ? "completed" : ""}`.trim()}
-                  onClick={() => setState((current) => enterDigit(current, digit))}
-                  disabled={completed || state.isPaused}
-                  aria-label={completed ? `${digit} complete` : `${digit}`}
-                >
-                  <span className="keypad-digit">{digit}</span>
-                  {completed ? <span className="keypad-status">Done</span> : null}
-                </button>
-              );
-            })}
-            <button className="keypad-action" onClick={() => setState((current) => undo(current))} disabled={state.history.length === 0 || state.isPaused}>
-              Undo
-            </button>
-            <button className="keypad-action" onClick={() => setState((current) => redo(current))} disabled={state.future.length === 0 || state.isPaused}>
-              Redo
-            </button>
-            <button className="keypad-action" onClick={() => setState((current) => clearCell(current))} disabled={state.isPaused}>
-              Erase
-            </button>
+                return (
+                  <button
+                    key={index}
+                    className={`digit-button digit-${digit} ${state.selectedDigit === digit ? "active" : ""} ${completed ? "completed" : ""}`.trim()}
+                    onClick={() => setState((current) => enterDigit(current, digit))}
+                    disabled={completed || state.isPaused}
+                    aria-label={completed ? `${digit} complete` : `${digit}`}
+                  >
+                    <span className="keypad-digit">{digit}</span>
+                    {completed ? <span className="keypad-status">Done</span> : null}
+                  </button>
+                );
+              })}
+              <button
+                className="keypad-pause"
+                onClick={() => setState((current) => togglePause(current))}
+                aria-label={state.isPaused ? "Play" : "Pause"}
+                title={state.isPaused ? "Play" : "Pause"}
+              >
+                {state.isPaused ? (
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="pause-icon">
+                    <path d="M8 6v12l10-6z" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="pause-icon">
+                    <path d="M8 5h3v14H8z" />
+                    <path d="M13 5h3v14h-3z" />
+                  </svg>
+                )}
+              </button>
+              <button
+                className="keypad-erase"
+                onClick={() => setState((current) => clearCell(current))}
+                disabled={state.isPaused}
+                aria-label="Erase"
+                title="Erase"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="eraser-icon">
+                  <path d="M3 15.5 12.5 6a2.8 2.8 0 0 1 4 0l4 4a2.8 2.8 0 0 1 0 4l-4.5 4.5H8a3 3 0 0 1-2.1-.9L3 15.5Z" />
+                  <path d="M13 18.5h8" />
+                </svg>
+              </button>
+              <button className="keypad-action keypad-reset" onClick={() => setState((current) => resetPuzzle(current))}>
+                Reset
+              </button>
+            </div>
 
-            <button className="keypad-action" onClick={() => setState((current) => switchPuzzle(current, getRandomPuzzleId(current.puzzleId)))}>
-              New game
-            </button>
-            <button className="keypad-action" onClick={() => setState((current) => resetPuzzle(current))}>
-              Reset
-            </button>
-            <button className="keypad-action" onClick={() => setState((current) => togglePause(current))}>
-              {state.isPaused ? "Play" : "Pause"}
-            </button>
+            <div className="play-controls">
+              <button className="keypad-action" onClick={() => setState((current) => switchPuzzle(current, getRandomPuzzleId(current.puzzleId)))}>
+                New game
+              </button>
+            </div>
           </div>
+
           <div className="toolbar toolbar-below">
             <button onClick={() => setState((current) => toggleNoteMode(current))} className={state.noteMode ? "active" : ""}>
               Notes {state.noteMode ? "On" : "Off"}
@@ -350,7 +372,6 @@ export function GameApp() {
         </div>
 
         <aside className="sidebar">
-
           <details className="panel help-panel">
             <summary>Instructions</summary>
             <div className="help-panel-body">
@@ -387,15 +408,5 @@ export function GameApp() {
     </main>
   );
 }
-
-
-
-
-
-
-
-
-
-
 
 
