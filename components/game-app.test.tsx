@@ -1,9 +1,9 @@
 import React from "react";
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { GameApp } from "@/components/game-app";
-import { createInitialState, savePersistedState, STORAGE_KEY } from "@/lib/game-state";
+import { createInitialState, savePersistedState } from "@/lib/game-state";
 import { getGivenPositions, puzzles } from "@/lib/puzzles";
 import { PlayDifficulty } from "@/lib/types";
 
@@ -75,7 +75,6 @@ describe("GameApp", () => {
     expect(firstCell).toHaveTextContent("4");
   });
 
-
   it("clears matching values and replaces different non-given values with the selected digit", async () => {
     const user = userEvent.setup();
     renderApp("killer");
@@ -98,6 +97,7 @@ describe("GameApp", () => {
     await user.click(secondCell);
     expect(within(secondCell).getByText("7", { selector: ".cell-value" })).toBeInTheDocument();
   });
+
   it("highlights only placed copies of the selected digit when no cell is active", async () => {
     const user = userEvent.setup();
     renderApp("low");
@@ -140,30 +140,6 @@ describe("GameApp", () => {
 
     expect(selectedGivenCell.className).toContain("selected");
     expect(selectedRowPeer.className).toContain("peer");
-  });
-
-  it("starts a random new game from the available puzzle catalog", async () => {
-    const user = userEvent.setup();
-    const randomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
-
-    renderApp("killer");
-
-    await user.click(screen.getByRole("button", { name: "5" }));
-
-    const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
-    const firstCell = within(board).getByRole("button", { name: "Row 1 Column 1" });
-    await user.click(firstCell);
-    expect(firstCell).toHaveTextContent("5");
-
-    await user.click(screen.getByRole("button", { name: "New game" }));
-
-    await waitFor(() => {
-      const persisted = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}");
-      expect(persisted.puzzleId).toBe(puzzles[1].id);
-    });
-    expect(within(board).getByRole("button", { name: "Row 1 Column 1" })).not.toHaveTextContent("5");
-
-    randomSpy.mockRestore();
   });
 
   it("toggles pause state and blanks the board", async () => {
@@ -231,6 +207,3 @@ describe("GameApp", () => {
     expect(within(firstCell).queryByText("5", { selector: ".cell-value" })).toBeNull();
   });
 });
-
-
-

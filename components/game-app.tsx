@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { getGivenPositions, getPuzzleById, getRandomPuzzleId, isGivenCell, puzzles } from "@/lib/puzzles";
+import { getPuzzleById, isGivenCell, puzzles } from "@/lib/puzzles";
 import {
   clearCell,
   createInitialState,
@@ -13,33 +13,14 @@ import {
   resetPuzzle,
   savePersistedState,
   selectCell,
-  switchPlayDifficulty,
-  switchPuzzle,
   tick,
   toggleEraseMode,
   toggleNoteMode,
   togglePause,
   undo
 } from "@/lib/game-state";
-import { GameState, PlayDifficulty, ValidationIssue } from "@/lib/types";
+import { GameState, ValidationIssue } from "@/lib/types";
 import { formatTime, range } from "@/lib/utils";
-
-const playDifficultyLabels: Record<PlayDifficulty, string> = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-  killer: "Killer"
-};
-
-const legendItems = [
-  { label: "Selected cell", className: "legend-swatch selected" },
-  { label: "Related row, column, or box", className: "legend-swatch peer" },
-  { label: "Starter digit", className: "legend-swatch given" },
-  { label: "Rule conflict", className: "legend-swatch invalid" },
-  { label: "Complete cage", className: "legend-swatch cage-complete" },
-  { label: "Cage outline", className: "legend-swatch cage-border" },
-  { label: "3x3 box border", className: "legend-swatch box-border" }
-];
 
 const issueLabels: Record<ValidationIssue["reason"], string> = {
   row: "Duplicates a number in this row",
@@ -225,12 +206,10 @@ function buildCellClassNames(
 
 export function GameApp() {
   const { ready, state, setState } = useHydratedGameState();
-  const puzzle = getPuzzleById(state.puzzleId);
   const cageIdMap = useMemo(() => getCageIdMap(state.puzzleId), [state.puzzleId]);
   const cageLabelMap = useMemo(() => getCageLabelMap(state.puzzleId), [state.puzzleId]);
   const completedDigits = useMemo(() => getCompletedDigits(state), [state]);
   const selectedDigitCells = useMemo(() => getSelectedDigitCells(state), [state]);
-  const givenCount = getGivenPositions(state.puzzleId, state.playDifficulty).length;
 
   if (!ready) {
     return <main className="shell loading">Loading puzzle table...</main>;
@@ -258,9 +237,9 @@ export function GameApp() {
                   const hasBoxBottom = row === 8;
                   const hasBoxRight = col === 8;
                   const hasCageTop = row === 0 || cageIdMap.get(keyForCell(row - 1, col)) !== cageId;
-                  const hasCageBottom = row === 8 && cageIdMap.get(keyForCell(row + 1, col)) !== cageId;
+                  const hasCageBottom = row === 8 || cageIdMap.get(keyForCell(row + 1, col)) !== cageId;
                   const hasCageLeft = col === 0 || cageIdMap.get(keyForCell(row, col - 1)) !== cageId;
-                  const hasCageRight = col === 8 && cageIdMap.get(keyForCell(row, col + 1)) !== cageId;
+                  const hasCageRight = col === 8 || cageIdMap.get(keyForCell(row, col + 1)) !== cageId;
                   const borderClasses = [
                     hasCageTop && !hasBoxTop ? "cage-top" : "",
                     hasCageBottom && !hasBoxBottom ? "cage-bottom" : "",
@@ -313,6 +292,7 @@ export function GameApp() {
                 return (
                   <button
                     key={index}
+                    type="button"
                     className={`digit-button digit-${digit} ${state.selectedDigit === digit ? "active" : ""} ${completed ? "completed" : ""}`.trim()}
                     onClick={() => setState((current) => enterDigit(current, digit))}
                     disabled={completed || state.isPaused}
@@ -323,7 +303,9 @@ export function GameApp() {
                   </button>
                 );
               })}
+
               <button
+                type="button"
                 className="keypad-pause"
                 onClick={() => setState((current) => togglePause(current))}
                 aria-label={state.isPaused ? "Play" : "Pause"}
@@ -340,7 +322,9 @@ export function GameApp() {
                   </svg>
                 )}
               </button>
+
               <button
+                type="button"
                 className={`keypad-erase ${state.eraseMode ? "active" : ""}`.trim()}
                 onClick={() => setState((current) => toggleEraseMode(current))}
                 disabled={state.isPaused}
@@ -352,63 +336,26 @@ export function GameApp() {
                   <path d="M13 18.5h8" />
                 </svg>
               </button>
-              <button className="keypad-action keypad-reset" onClick={() => setState((current) => resetPuzzle(current))}>
+
+              <button
+                type="button"
+                className="keypad-action keypad-reset"
+                onClick={() => setState((current) => resetPuzzle(current))}
+                disabled={state.isPaused}
+              >
                 Reset
               </button>
             </div>
 
-            <div className="play-controls">
-              <button className="keypad-action" onClick={() => setState((current) => switchPuzzle(current, getRandomPuzzleId(current.puzzleId)))}>
-                New game
+            <div className="toolbar toolbar-below">
+              <button type="button" onClick={() => setState((current) => toggleNoteMode(current))} className={state.noteMode ? "active" : ""}>
+                Notes {state.noteMode ? "On" : "Off"}
               </button>
+              <div className="toolbar-timer">{formatTime(state.elapsedSeconds)}</div>
             </div>
-          </div>
-
-          <div className="toolbar toolbar-below">
-            <button onClick={() => setState((current) => toggleNoteMode(current))} className={state.noteMode ? "active" : ""}>
-              Notes {state.noteMode ? "On" : "Off"}
-            </button>
-            <div className="toolbar-timer">{formatTime(state.elapsedSeconds)}</div>
           </div>
         </div>
-
-        <aside className="sidebar">
-          <details className="panel help-panel">
-            <summary>Instructions</summary>
-            <div className="help-panel-body">
-              <div className="setup-summary">
-                <p><strong>Puzzle:</strong> {puzzle.name}</p>
-                <p><strong>Difficulty:</strong> {playDifficultyLabels[state.playDifficulty]}</p>
-                <p>{playDifficultyLabels[state.playDifficulty]} starts with {givenCount} pre-filled number{givenCount === 1 ? "" : "s"}.</p>
-              </div>
-              <p>{puzzle.name} uses a {puzzle.complexity.toLowerCase()} cage layout.</p>
-              <ul className="tips">
-                <li>Each row, column, and 3x3 box must contain 1 through 9 exactly once.</li>
-                <li>Cages must add up to their corner total and cannot repeat a digit.</li>
-                <li>Low, Medium, and High include starter digits. Killer uses none.</li>
-                <li>Select a number first, then click cells to place it. Choosing a new number never overwrites the current cell.</li>
-                <li>Selected numbers light up their placed cells, and an active cell still highlights its related row, column, and box.</li>
-                <li>Use Pause to blank the board and freeze play until you resume.</li>
-                <li>A number locks itself once all nine correct placements are on the board.</li>
-              </ul>
-              <div className="legend-block">
-                <h3>Legend</h3>
-                <div className="legend-list">
-                  {legendItems.map((item) => (
-                    <div key={item.label} className="legend-item">
-                      <span className={item.className} aria-hidden="true" />
-                      <span>{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </details>
-        </aside>
       </section>
     </main>
   );
 }
-
-
-
