@@ -331,6 +331,15 @@ export function GameApp() {
               Erase
             </button>
 
+            <button className="keypad-action" onClick={() => setState((current) => switchPuzzle(current, getRandomPuzzleId(current.puzzleId)))}>
+              New game
+            </button>
+            <button className="keypad-action" onClick={() => setState((current) => resetPuzzle(current))}>
+              Reset
+            </button>
+            <button className="keypad-action" onClick={() => setState((current) => togglePause(current))}>
+              {state.isPaused ? "Play" : "Pause"}
+            </button>
           </div>
           <div className="toolbar toolbar-below">
             <label className="select-wrap">
@@ -371,17 +380,6 @@ export function GameApp() {
         </div>
 
         <aside className="sidebar">
-          <div className="panel">
-            <div className="session-actions">
-              <button onClick={() => setState((current) => switchPuzzle(current, getRandomPuzzleId(current.puzzleId)))}>
-                New game
-              </button>
-              <button onClick={() => setState((current) => resetPuzzle(current))}>Reset</button>
-              <button onClick={() => setState((current) => togglePause(current))}>
-                {state.isPaused ? "Play" : "Pause"}
-              </button>
-            </div>
-          </div>
 
           <details className="panel help-panel">
             <summary>Instructions</summary>
