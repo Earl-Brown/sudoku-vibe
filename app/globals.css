@@ -177,15 +177,15 @@ h1 {
 }
 
 .cell.selected {
-  background: rgba(31, 108, 92, 0.18);
+  background: rgba(70, 112, 176, 0.26);
 }
 
 .cell.peer {
-  background: rgba(31, 108, 92, 0.07) !important;
+  background: rgba(70, 112, 176, 0.14) !important;
 }
 
 .cell.given.peer {
-  background: rgba(31, 108, 92, 0.07) !important;
+  background: rgba(70, 112, 176, 0.14) !important;
 }
 
 .cell.invalid {
@@ -961,4 +961,20 @@ h1 {
 }
 
 
-/* keypad position overrides */`r`n.keypad-inline .digit-1 { order: 1; }`r`n.keypad-inline .digit-2 { order: 2; }`r`n.keypad-inline .digit-3 { order: 3; }`r`n.keypad-inline .digit-4 { order: 4; }`r`n.keypad-inline .digit-5 { order: 5; }`r`n.keypad-inline .keypad-erase { order: 6; }`r`n.keypad-inline .keypad-pause { order: 7; }`r`n.keypad-inline .digit-6 { order: 8; }`r`n.keypad-inline .digit-7 { order: 9; }`r`n.keypad-inline .digit-8 { order: 10; }`r`n.keypad-inline .digit-9 { order: 11; }`r`n.keypad-inline .keypad-notes { order: 12; }`r`n.keypad-inline .keypad-reset { order: 13; }`r`n.keypad-inline .keypad-home { order: 14; }
+/* keypad position overrides */
+.keypad-inline .digit-1 { order: 1; }
+.keypad-inline .digit-2 { order: 2; }
+.keypad-inline .digit-3 { order: 3; }
+.keypad-inline .digit-4 { order: 4; }
+.keypad-inline .digit-5 { order: 5; }
+.keypad-inline .keypad-erase { order: 6; }
+.keypad-inline .keypad-pause { order: 7; }
+.keypad-inline .digit-6 { order: 8; }
+.keypad-inline .digit-7 { order: 9; }
+.keypad-inline .digit-8 { order: 10; }
+.keypad-inline .digit-9 { order: 11; }
+.keypad-inline .keypad-notes { order: 12; }
+.keypad-inline .keypad-reset { order: 13; }
+.keypad-inline .keypad-home { order: 14; }
+
+

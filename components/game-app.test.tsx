@@ -207,3 +207,5 @@ describe("GameApp", () => {
     expect(within(firstCell).queryByText("5", { selector: ".cell-value" })).toBeNull();
   });
 });
+
+
