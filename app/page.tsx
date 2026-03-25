@@ -1,5 +1,5 @@
-import { GameApp } from "@/components/game-app";
+import { LandingPage } from "@/components/landing-page";
 
 export default function HomePage() {
-  return <GameApp />;
+  return <LandingPage />;
 }

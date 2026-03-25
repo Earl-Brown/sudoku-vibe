@@ -1,19 +1,30 @@
 import React from "react";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GameApp } from "@/components/game-app";
-import { createInitialState, savePersistedState } from "@/lib/game-state";
+import { savePersistedState } from "@/lib/game-state";
 import { getGivenPositions, puzzles } from "@/lib/puzzles";
 import { PlayDifficulty } from "@/lib/types";
+
+const push = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push })
+}));
 
 function cellName(row: number, col: number) {
   return `Row ${row + 1} Column ${col + 1}`;
 }
 
 function renderApp(playDifficulty: PlayDifficulty = "medium") {
-  savePersistedState(createInitialState(puzzles[0].id, playDifficulty));
-  return render(<GameApp />);
+  return render(
+    <GameApp
+      initialPuzzleId={puzzles[0].id}
+      initialPlayDifficulty={playDifficulty}
+      preferRouteState
+    />
+  );
 }
 
 function findGivenDigitWithMultipleVisibleCells() {
@@ -39,6 +50,7 @@ function findGivenDigitWithMultipleVisibleCells() {
 
 describe("GameApp", () => {
   beforeEach(() => {
+    push.mockReset();
     window.localStorage.clear();
   });
 
@@ -57,6 +69,30 @@ describe("GameApp", () => {
     await user.click(firstCell);
 
     expect(firstCell).toHaveTextContent("5");
+  });
+
+  it("prefers route state over saved local progress when requested", async () => {
+    const otherPuzzle = puzzles[1] ?? puzzles[0];
+    savePersistedState({
+      puzzleId: otherPuzzle.id,
+      playDifficulty: "low",
+      values: Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => null)),
+      notes: Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => [])),
+      isPaused: false,
+      elapsedSeconds: 99
+    });
+
+    render(
+      <GameApp
+        initialPuzzleId={puzzles[0].id}
+        initialPlayDifficulty="killer"
+        preferRouteState
+      />
+    );
+
+    const board = await screen.findByRole("grid", { name: "Killer Sudoku board" });
+    const firstCell = within(board).getByRole("button", { name: cellName(0, 0) });
+    expect(within(firstCell).queryByText(String(puzzles[0].solution[0][0]), { selector: ".cell-value" })).toBeNull();
   });
 
   it("changing the selected number does not rewrite the selected cell", async () => {
@@ -220,10 +256,4 @@ describe("GameApp", () => {
     expect(within(firstCell).queryByText("5", { selector: ".cell-value" })).toBeNull();
   });
 });
-
-
-
-
-
-
 

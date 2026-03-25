@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getPuzzleById, isGivenCell, puzzles } from "@/lib/puzzles";
 import {
   clearCell,
@@ -19,7 +20,7 @@ import {
   togglePause,
   undo
 } from "@/lib/game-state";
-import { GameState, ValidationIssue } from "@/lib/types";
+import { GameState, PlayDifficulty, ValidationIssue } from "@/lib/types";
 import { formatTime, range } from "@/lib/utils";
 
 const issueLabels: Record<ValidationIssue["reason"], string> = {
@@ -50,17 +51,20 @@ function getCellTooltip(state: GameState, row: number, col: number) {
   return `Rule conflict: ${messages.join("; ")}`;
 }
 
-function useHydratedGameState() {
-  const [state, setState] = useState<GameState>(() => createInitialState(puzzles[0].id, DEFAULT_PLAY_DIFFICULTY));
+function useHydratedGameState(initialPuzzleId?: string, initialPlayDifficulty: PlayDifficulty = DEFAULT_PLAY_DIFFICULTY, preferRouteState = false) {
+  const [state, setState] = useState<GameState>(() => createInitialState(initialPuzzleId ?? puzzles[0].id, initialPlayDifficulty));
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const persisted = loadPersistedState();
-    if (persisted) {
-      setState(persisted);
+    if (!preferRouteState) {
+      const persisted = loadPersistedState();
+      if (persisted) {
+        setState(persisted);
+      }
     }
+
     setReady(true);
-  }, []);
+  }, [preferRouteState]);
 
   useEffect(() => {
     if (ready) {
@@ -377,8 +381,19 @@ function IconButton({
   );
 }
 
-export function GameApp() {
-  const { ready, state, setState } = useHydratedGameState();
+type GameAppProps = {
+  initialPuzzleId?: string;
+  initialPlayDifficulty?: PlayDifficulty;
+  preferRouteState?: boolean;
+};
+
+export function GameApp({
+  initialPuzzleId,
+  initialPlayDifficulty = DEFAULT_PLAY_DIFFICULTY,
+  preferRouteState = false
+}: GameAppProps) {
+  const router = useRouter();
+  const { ready, state, setState } = useHydratedGameState(initialPuzzleId, initialPlayDifficulty, preferRouteState);
   const cageIdMap = useMemo(() => getCageIdMap(state.puzzleId), [state.puzzleId]);
   const cageLabelMap = useMemo(() => getCageLabelMap(state.puzzleId), [state.puzzleId]);
   const cageOverlayPaths = useMemo(() => buildCageOverlayPaths(state.puzzleId), [state.puzzleId]);
@@ -392,7 +407,7 @@ export function GameApp() {
   return (
     <main className="shell">
       <section className="hero">
-        <h1>Killer Sudoku</h1>
+        <h1>Sudoku War</h1>
       </section>
 
       <section className="workspace">
@@ -484,8 +499,8 @@ export function GameApp() {
               <IconButton
                 className="keypad-home"
                 label="Home"
-                disabled={state.isPaused}
-                onClick={() => undefined}
+                disabled={false}
+                onClick={() => router.push("/")}
               >
                 <svg viewBox="0 0 16 16" aria-hidden="true" className="tool-icon">
                   <path d="M7.293 1.5a1 1 0 0 1 1.414 0L11 3.793V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v3.293l2.354 2.353a.5.5 0 0 1-.708.708L8 2.207l-5 5V13.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 2 13.5V8.207l-.646.647a.5.5 0 1 1-.708-.708z" />
@@ -555,6 +570,12 @@ export function GameApp() {
     </main>
   );
 }
+
+
+
+
+
+
 
 
 
