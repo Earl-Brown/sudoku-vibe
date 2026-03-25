@@ -412,6 +412,7 @@ export function GameApp({
 
       <section className="workspace">
         <div className="board-panel">
+          <div className="play-surface">
           <div className={`board-shell ${state.isPaused ? "paused" : ""}`}>
             <div className="board-wrap">
               <svg className="cage-overlay" viewBox="0 0 90 90" aria-label="Killer cage overlay" aria-hidden="true">
@@ -565,11 +566,14 @@ export function GameApp({
               <div className="toolbar-timer">{formatTime(state.elapsedSeconds)}</div>
             </div>
           </div>
+          </div>
         </div>
       </section>
     </main>
   );
 }
+
+
 
 
 
