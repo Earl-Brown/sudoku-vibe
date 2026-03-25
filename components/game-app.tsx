@@ -203,7 +203,7 @@ function getInwardNormal(
 
 function buildInsetPath(loop: Array<{ x: number; y: number }>, inset: number) {
   const compactLoop = compressLoop(loop);
-  const outerInset = 0.8;
+  const outerInset = 1.6;
   const counterClockwise = signedArea(compactLoop) > 0;
 
   const insetPoints = compactLoop.map((point, index) => {
@@ -230,7 +230,7 @@ function buildCageOverlayPaths(puzzleId: string) {
   const puzzle = getPuzzleById(puzzleId);
   const unit = 10;
   const inset = 1;
-  const outerInset = 0.8;
+  const outerInset = 1.6;
 
   return puzzle.cages.flatMap((cage): OverlayPath[] => {
     const edges = new Map<string, { a: string; b: string }>();
@@ -420,7 +420,11 @@ export function GameApp() {
                     hasBoxTop ? "box-top" : "",
                     hasBoxLeft ? "box-left" : "",
                     hasBoxBottom ? "box-bottom" : "",
-                    hasBoxRight ? "box-right" : ""
+                    hasBoxRight ? "box-right" : "",
+                    row === 0 ? "edge-top" : "",
+                    col === 0 ? "edge-left" : "",
+                    row === 8 ? "edge-bottom" : "",
+                    col === 8 ? "edge-right" : ""
                   ]
                     .filter(Boolean)
                     .join(" ");
@@ -551,6 +555,8 @@ export function GameApp() {
     </main>
   );
 }
+
+
 
 
 
