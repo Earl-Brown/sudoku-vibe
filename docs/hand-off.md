@@ -36,6 +36,8 @@ full-rebuild.bat
 - Refactor the UI to be more mobile-friendly
 - Remove the conflict tooltip from board cells
 - Consider moving puzzle-set selection to a dedicated configuration page and making the active puzzle display read-only in the main UI
+- Investigate generating puzzles in the browser for production instead of regenerating the catalog during build/deploy
+- Make selected-cell and related-cell highlights conform to killer cage boundaries instead of filling the full square
 
 ## Issue Log
 
@@ -140,3 +142,4 @@ Use this section to record issues, how they were fixed, and the commit that cont
 - Issue: What was broken or confusing.
 - Resolution: What changed and why it fixed the problem.
 - Final commit: `<hash>` (`Commit message`)
+
