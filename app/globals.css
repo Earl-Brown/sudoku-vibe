@@ -183,7 +183,7 @@
 .setup-header {
   display: flex;
   justify-content: space-between;
-  align-items: end;
+  align-items: flex-end;
   gap: 16px;
 }
 
@@ -478,37 +478,23 @@
   gap: 12px;
 }
 
+.workspace {
+  grid-template-columns: 1fr;
+  max-width: 1400px;
+}
+
+.board-panel {
+  width: 100%;
+}
+
 @media (orientation: landscape) and (max-height: 980px) {
   .shell {
     padding-bottom: 18px;
   }
 
-  .hero {
-    margin-bottom: 6px;
-  }
-
-  .workspace {
-    max-width: 1500px;
-  }
-
   .board-panel {
     gap: 12px;
     padding: 14px 16px 16px;
-  }
-
-  .play-surface {
-    grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
-    align-items: start;
-    gap: 14px;
-  }
-
-  .board-shell {
-    min-width: 0;
-  }
-
-  .board-wrap {
-    width: min(100%, calc(100vh - 180px));
-    margin: 0 auto;
   }
 
   .keypad-block {
@@ -553,11 +539,11 @@
 
 @media (orientation: landscape) and (max-height: 720px) {
   .shell {
-    padding: 10px 12px 14px;
+    padding: 14px 12px 14px;
   }
 
   .hero h1 {
-    font-size: clamp(1.9rem, 5vw, 3rem);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
   }
 
   .board-panel {
@@ -569,7 +555,8 @@
   }
 
   .board-wrap {
-    width: min(100%, calc(100vh - 150px));
+    width: min(calc(100vh - 64px), 860px);
+    max-width: min(calc(100vw - 300px), 860px);
   }
 
   .cell-value {
@@ -586,82 +573,31 @@
 }
 
 @media (orientation: landscape) and (min-width: 900px) {
-  .workspace {
-    max-width: 1600px;
-  }
-
-  .play-surface {
-    grid-template-columns: minmax(0, 1fr) 288px;
-    align-items: start;
-  }
-
-  .board-shell {
-    width: 100%;
-  }
-
-  .board-wrap {
-    width: min(calc(100vh - 120px), calc(100vw - 380px));
-    max-width: 100%;
-    margin: 0 0 0 auto;
-  }
-
-  .keypad-block {
-    width: 288px;
-    min-width: 288px;
-  }
-
-  .keypad-inline {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (orientation: landscape) and (max-height: 720px) and (min-width: 900px) {
-  .hero {
-    margin-bottom: 4px;
-  }
-
-  .board-wrap {
-    width: min(calc(100vh - 108px), calc(100vw - 372px));
-  }
-}
-
-.workspace {
-  grid-template-columns: 1fr;
-  max-width: 1400px;
-}
-
-.board-panel {
-  width: 100%;
-}
-
-@media (orientation: landscape) and (min-width: 900px) {
-  .workspace {
-    max-width: 1520px;
-  }
-
-  .play-surface {
-    grid-template-columns: minmax(520px, 1fr) 288px;
-  }
-
-  .board-wrap {
-    width: min(calc(100vh - 108px), 860px);
-    margin: 0 0 0 auto;
-  }
-}
-
-@media (orientation: landscape) and (min-width: 900px) {
   .shell {
-    padding: 8px 16px 16px;
+    position: relative;
+    padding: 18px 16px 16px;
   }
 
   .hero {
-    margin: 0 auto 4px;
-    max-width: 1520px;
+    position: absolute;
+    top: 8px;
+    left: 22px;
+    margin: 0;
+    z-index: 10;
+    pointer-events: none;
   }
 
   .hero h1 {
-    font-size: clamp(1.8rem, 3.4vw, 2.9rem);
-    line-height: 0.9;
+    position: relative;
+    z-index: 10;
+    font-size: clamp(1.7rem, 3vw, 2.6rem);
+    line-height: 0.92;
+    text-shadow: 0 2px 10px rgba(255, 247, 232, 0.45);
+  }
+
+  .workspace {
+    max-width: 1520px;
+    margin-top: 0;
   }
 
   .board-panel {
@@ -669,24 +605,36 @@
   }
 
   .play-surface {
-    grid-template-columns: minmax(560px, 1fr) 216px;
+    grid-template-columns: 216px auto;
+    width: max-content;
+    max-width: 100%;
+    margin: 0 auto;
     gap: 14px;
-    align-items: start;
-  }
-
-  .board-shell {
-    min-width: 0;
-  }
-
-  .board-wrap {
-    width: min(calc(100vh - 74px), calc(100vw - 300px), 920px);
-    margin: 0 0 0 auto;
+    align-items: center;
+    justify-content: center;
   }
 
   .keypad-block {
+    order: 1;
     width: 216px;
     min-width: 216px;
     gap: 10px;
+    justify-self: center;
+    align-self: center;
+  }
+
+  .board-shell {
+    order: 2;
+    width: auto;
+    min-width: 0;
+    justify-self: center;
+    align-self: center;
+  }
+
+  .board-wrap {
+    width: min(calc(100vh - 74px), 920px);
+    max-width: min(calc(100vw - 320px), 920px);
+    margin: 0 auto;
   }
 
   .keypad-inline {
@@ -700,127 +648,10 @@
   }
 
   .toolbar-timer {
+    margin-left: 0;
+    padding-left: 0;
     padding-top: 2px;
     font-size: 0.9rem;
-  }
-}
-
-@media (orientation: landscape) and (min-width: 900px) {
-  .hero {
-    position: relative;
-    z-index: 6;
-    padding-left: 6px;
-  }
-
-  .hero h1 {
-    position: relative;
-    z-index: 6;
-    text-shadow: 0 2px 10px rgba(255, 247, 232, 0.45);
-  }
-
-  .keypad-block {
-    order: 1;
-  }
-
-  .board-shell {
-    order: 2;
-  }
-
-  .board-wrap {
-    margin: 0 auto 0 0;
-  }
-}
-
-@media (orientation: landscape) and (min-width: 900px) {
-  .play-surface {
-    grid-template-columns: 216px minmax(560px, 1fr);
-  }
-
-  .board-shell {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .board-wrap {
-    width: min(calc(100vh - 74px), calc(100vw - 300px), 920px);
-    max-width: 100%;
-    margin: 0 auto 0 0;
-  }
-}
-
-@media (orientation: landscape) and (min-width: 900px) {
-  .play-surface {
-    grid-template-columns: 216px minmax(560px, 920px);
-    justify-content: center;
-  }
-
-  .board-wrap {
-    margin: 0 auto;
-  }
-}
-
-@media (orientation: landscape) and (min-width: 900px) {
-  .play-surface {
-    align-items: center;
-  }
-
-  .keypad-block {
-    justify-self: center;
-    align-self: center;
-  }
-
-  .board-shell {
-    justify-self: center;
-    align-self: center;
-  }
-
-  .board-wrap {
-    margin: 0 auto;
-  }
-}
-
-@media (orientation: landscape) and (min-width: 900px) {
-  .shell {
-    position: relative;
-    padding-top: 18px;
-  }
-
-  .hero {
-    position: absolute;
-    top: 8px;
-    left: 22px;
-    right: auto;
-    margin: 0;
-    z-index: 10;
-    pointer-events: none;
-  }
-
-  .hero h1 {
-    font-size: clamp(1.7rem, 3vw, 2.6rem);
-    line-height: 0.92;
-  }
-
-  .workspace {
-    margin-top: 0;
-  }
-}
-
-@media (orientation: landscape) and (min-width: 900px) {
-  .play-surface {
-    grid-template-columns: 216px auto;
-    width: max-content;
-    max-width: 100%;
-    margin: 0 auto;
-    justify-content: center;
-  }
-
-  .board-shell {
-    width: auto;
-  }
-
-  .board-wrap {
-    width: min(calc(100vh - 74px), 920px);
-    max-width: min(calc(100vw - 320px), 920px);
-    margin: 0 auto;
+    text-align: center;
   }
 }
